@@ -1,14 +1,6 @@
-[gd_scene load_steps=10 format=3 uid="uid://bcb0d2eb5949c"]
+[gd_scene load_steps=8 format=3 uid="uid://bcb0d2eb5949c"]
 
 [ext_resource type="Script" path="res://Main.gd" id="1_script"]
-[ext_resource type="Shader" path="res://crt_shader.gdshader" id="2_crt"]
-
-[sub_resource type="ShaderMaterial" id="ShaderMaterial_crt"]
-shader = ExtResource("2_crt")
-shader_parameter/scanline_intensity = 0.06
-shader_parameter/vignette_intensity = 0.22
-shader_parameter/chromatic_aberration = 0.6
-shader_parameter/curvature = 0.012
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 bg_color = Color(0.08, 0.14, 0.10, 0.85)
@@ -433,15 +425,6 @@ custom_minimum_size = Vector2(160, 38)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Volver a la Mesa"
-
-[node name="CRTOverlay" type="ColorRect" parent="UILayer"]
-material = SubResource("ShaderMaterial_crt")
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
 
 [connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/TopBar/BtnOpenShop" to="." method="_on_btn_open_shop_pressed"]
 [connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/BtnBet" to="." method="_on_btn_bet_pressed"]

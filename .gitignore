@@ -1,0 +1,8 @@
+# Godot 4 generated / cache data — never commit
+.godot/
+
+# Export credentials (may contain API keys)
+export_presets.cfg
+
+# macOS metadata
+.DS_Store

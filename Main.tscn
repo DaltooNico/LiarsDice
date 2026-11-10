@@ -1,0 +1,77 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://Main.gd" id="1_script"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_script")
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.12, 0.25, 0.15, 1)
+
+[node name="UILayer" type="CanvasLayer" parent="."]
+
+[node name="VBox" type="VBoxContainer" parent="UILayer"]
+offset_left = 50.0
+offset_top = 50.0
+offset_right = 1230.0
+offset_bottom = 670.0
+theme_override_constants/separation = 20
+
+[node name="EnemyArea" type="HBoxContainer" parent="UILayer/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UILayer/VBox/EnemyArea"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Dados rival: "
+
+[node name="PlayerArea" type="HBoxContainer" parent="UILayer/VBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="UILayer/VBox/PlayerArea"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Tus dados: "
+
+[node name="BettingPanel" type="HBoxContainer" parent="UILayer/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 15
+
+[node name="LabelQ" type="Label" parent="UILayer/VBox/BettingPanel"]
+layout_mode = 2
+text = "Cantidad:"
+
+[node name="QuantitySpinBox" type="SpinBox" parent="UILayer/VBox/BettingPanel"]
+layout_mode = 2
+min_value = 1.0
+max_value = 20.0
+value = 1.0
+
+[node name="LabelF" type="Label" parent="UILayer/VBox/BettingPanel"]
+layout_mode = 2
+text = "Cara del Dado:"
+
+[node name="FaceSpinBox" type="SpinBox" parent="UILayer/VBox/BettingPanel"]
+layout_mode = 2
+min_value = 1.0
+max_value = 6.0
+value = 2.0
+
+[node name="BtnBet" type="Button" parent="UILayer/VBox/BettingPanel"]
+layout_mode = 2
+text = "Apostar"
+
+[node name="BtnDudo" type="Button" parent="UILayer/VBox/BettingPanel"]
+layout_mode = 2
+text = "¡Dudo!"
+
+[node name="GameLog" type="RichTextLabel" parent="UILayer/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 20
+text = "Iniciando mesa..."
+
+[connection signal="pressed" from="UILayer/VBox/BettingPanel/BtnBet" to="." method="_on_btn_bet_pressed"]
+[connection signal="pressed" from="UILayer/VBox/BettingPanel/BtnDudo" to="." method="_on_btn_dudo_pressed"]

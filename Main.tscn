@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://bcb0d2eb5949c"]
+[gd_scene load_steps=9 format=3 uid="uid://bcb0d2eb5949c"]
 
 [ext_resource type="Script" path="res://Main.gd" id="1_script"]
 
@@ -56,20 +56,8 @@ corner_radius_top_right = 8
 corner_radius_bottom_left = 8
 corner_radius_bottom_right = 8
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_shop"]
-bg_color = Color(0.65, 0.45, 0.12, 1)
-border_width_left = 2
-border_width_top = 2
-border_width_right = 2
-border_width_bottom = 2
-border_color = Color(0.95, 0.78, 0.32, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_left = 8
-corner_radius_bottom_right = 8
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal"]
-bg_color = Color(0.06, 0.08, 0.10, 0.96)
+bg_color = Color(0.06, 0.08, 0.10, 0.97)
 border_width_left = 3
 border_width_top = 3
 border_width_right = 3
@@ -79,8 +67,20 @@ corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_left = 16
 corner_radius_bottom_right = 16
-shadow_color = Color(0, 0, 0, 0.7)
-shadow_size = 20
+shadow_color = Color(0, 0, 0, 0.75)
+shadow_size = 24
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stage_badge"]
+bg_color = Color(0.16, 0.22, 0.34, 0.9)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.35, 0.55, 0.85, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_left = 6
+corner_radius_bottom_right = 6
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_script")
@@ -122,26 +122,37 @@ theme_override_constants/separation = 10
 
 [node name="TopBar" type="HBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea"]
 layout_mode = 2
-theme_override_constants/separation = 20
+theme_override_constants/separation = 16
+
+[node name="StagePanel" type="PanelContainer" parent="UILayer/Margin/Layout/LeftPlayArea/TopBar"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_stage_badge")
+
+[node name="Margin" type="MarginContainer" parent="UILayer/Margin/Layout/LeftPlayArea/TopBar/StagePanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 4
+
+[node name="StageLabel" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/TopBar/StagePanel/Margin"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.92, 1.0, 1)
+theme_override_font_sizes/font_size = 15
+text = "🏆 ANTE 1 — Encuentro 1/4 (Rival)"
 
 [node name="GoldLabel" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/TopBar"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.85, 0.35, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 17
 text = "💰 Oro: 10"
 
 [node name="RelicsLabel" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/TopBar"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.8, 0.85, 0.9, 1)
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 15
 text = "Reliquias: (ninguna)"
-
-[node name="BtnOpenShop" type="Button" parent="UILayer/Margin/Layout/LeftPlayArea/TopBar"]
-custom_minimum_size = Vector2(100, 32)
-layout_mode = 2
-theme_override_styles/normal = SubResource("StyleBoxFlat_btn_shop")
-text = "🛒 Tienda"
 
 [node name="EnemyPanel" type="PanelContainer" parent="UILayer/Margin/Layout/LeftPlayArea"]
 layout_mode = 2
@@ -166,13 +177,13 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.9, 0.85, 0.7, 1)
 theme_override_font_sizes/font_size = 18
-text = "RIVAL: Tahúr Sombrío [Farolero]"
+text = "RIVAL: Novato del Callejón"
 
 [node name="EnemyCount" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/EnemyPanel/Margin/VBox/Header"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.4, 0.4, 1)
 theme_override_font_sizes/font_size = 16
-text = "5 dados"
+text = "4 dados"
 
 [node name="EnemyDiceRow" type="HBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/EnemyPanel/Margin/VBox"]
 custom_minimum_size = Vector2(0, 84)
@@ -313,10 +324,10 @@ text = "¡DUDO!"
 
 [node name="BtnAction" type="Button" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
 visible = false
-custom_minimum_size = Vector2(125, 38)
+custom_minimum_size = Vector2(130, 38)
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
-text = "Nueva Ronda"
+text = "Siguiente Ronda"
 
 [node name="RightLogArea" type="VBoxContainer" parent="UILayer/Margin/Layout"]
 layout_mode = 2
@@ -359,20 +370,20 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -240.0
-offset_right = 300.0
-offset_bottom = 240.0
+offset_left = -320.0
+offset_top = -250.0
+offset_right = 320.0
+offset_bottom = 250.0
 grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
 
 [node name="Margin" type="MarginContainer" parent="UILayer/ShopOverlay"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 20
+theme_override_constants/margin_left = 26
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 26
+theme_override_constants/margin_bottom = 18
 
 [node name="VBox" type="VBoxContainer" parent="UILayer/ShopOverlay/Margin"]
 layout_mode = 2
@@ -381,15 +392,15 @@ theme_override_constants/separation = 12
 [node name="ShopTitle" type="Label" parent="UILayer/ShopOverlay/Margin/VBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.85, 0.35, 1)
-theme_override_font_sizes/font_size = 22
-text = "🏪 MERCADO DE TAHÚRES"
+theme_override_font_sizes/font_size = 23
+text = "🏪 TIENDA TRAS LA VICTORIA"
 horizontal_alignment = 1
 
 [node name="ShopSubtitle" type="Label" parent="UILayer/ShopOverlay/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_colors/font_color = Color(0.7, 0.85, 0.75, 1)
 theme_override_font_sizes/font_size = 13
-text = "Modifica tu reserva de dados o adquiere reliquias tramposas."
+text = "Has derrotado al rival. Invierte tus ganancias antes del siguiente duelo."
 horizontal_alignment = 1
 
 [node name="HSeparator" type="HSeparator" parent="UILayer/ShopOverlay/Margin/VBox"]
@@ -413,20 +424,27 @@ text = "⭐ Comprar Dado Comodín (Cuenta para toda cara) — 8 🪙"
 [node name="BtnRecoverDie" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
-text = "➕ Recuperar 1 Dado Perdido — 4 🪙"
+text = "➕ Recuperar 1 Dado Perdido para la reserva — 4 🪙"
 
 [node name="BtnBuyRelic" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
 custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 text = "🏺 Adquirir Reliquia Misteriosa — 6 🪙"
 
-[node name="BtnCloseShop" type="Button" parent="UILayer/ShopOverlay/Margin/VBox"]
-custom_minimum_size = Vector2(160, 38)
+[node name="NextEncounterLabel" type="Label" parent="UILayer/ShopOverlay/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.78, 0.35, 1)
+theme_override_font_sizes/font_size = 14
+text = "Próximo Encuentro: ..."
+horizontal_alignment = 1
+
+[node name="BtnNextMatch" type="Button" parent="UILayer/ShopOverlay/Margin/VBox"]
+custom_minimum_size = Vector2(220, 42)
 layout_mode = 2
 size_flags_horizontal = 4
-text = "Volver a la Mesa"
+theme_override_font_sizes/font_size = 16
+text = "Siguiente Rival ➡️"
 
-[connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/TopBar/BtnOpenShop" to="." method="_on_btn_open_shop_pressed"]
 [connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/BtnBet" to="." method="_on_btn_bet_pressed"]
 [connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/BtnDudo" to="." method="_on_btn_dudo_pressed"]
 [connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/BtnAction" to="." method="_on_btn_action_pressed"]
@@ -434,4 +452,4 @@ text = "Volver a la Mesa"
 [connection signal="pressed" from="UILayer/ShopOverlay/Margin/VBox/ShopItemsList/BtnBuyWildcard" to="." method="_on_btn_buy_wildcard_pressed"]
 [connection signal="pressed" from="UILayer/ShopOverlay/Margin/VBox/ShopItemsList/BtnRecoverDie" to="." method="_on_btn_recover_die_pressed"]
 [connection signal="pressed" from="UILayer/ShopOverlay/Margin/VBox/ShopItemsList/BtnBuyRelic" to="." method="_on_btn_buy_relic_pressed"]
-[connection signal="pressed" from="UILayer/ShopOverlay/Margin/VBox/BtnCloseShop" to="." method="_on_btn_close_shop_pressed"]
+[connection signal="pressed" from="UILayer/ShopOverlay/Margin/VBox/BtnNextMatch" to="." method="_on_btn_next_match_pressed"]

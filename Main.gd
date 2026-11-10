@@ -5,23 +5,65 @@ const DiceFace = preload("res://DiceFace.gd")
 const RelicManager = preload("res://RelicManager.gd")
 const RelicScript = preload("res://Relic.gd")
 
-# ── Modelos de datos ───────────────────────────────────────────────────────────
+# ── Roster de Encuentros (Estilo Balatro: 3 Rivales + 1 Jefe) ───────────────────
+const ENCOUNTERS = [
+	{
+		"name": "Jack 'El Novato'",
+		"title": "Novato del Callejón [Cauteloso]",
+		"personality": EnemyAI.Personality.CAUTIOUS,
+		"dice_count": 4,
+		"reward": 4,
+		"is_boss": false,
+		"desc": "Juega sobre seguro. Canta Dudo si la apuesta parece improbable."
+	},
+	{
+		"name": "Vargas 'El Sabueso'",
+		"title": "Tahúr Callejero [Agresivo]",
+		"personality": EnemyAI.Personality.AGGRESSIVE,
+		"dice_count": 5,
+		"reward": 5,
+		"is_boss": false,
+		"desc": "Agresivo. Presiona subiendo la apuesta para intimidar."
+	},
+	{
+		"name": "Madame Farol",
+		"title": "Apostadora Ciega [Farolera]",
+		"personality": EnemyAI.Personality.BLUFFER,
+		"dice_count": 5,
+		"reward": 6,
+		"is_boss": false,
+		"desc": "Impredecible. Apuesta a caras que no tiene para tender trampas."
+	},
+	{
+		"name": "👑 El Barón Tramposo",
+		"title": "JEFE: El Barón Tramposo [Jefe]",
+		"personality": EnemyAI.Personality.CHEATER_BOSS,
+		"dice_count": 6,
+		"reward": 15,
+		"is_boss": true,
+		"desc": "¡JEFE! Juega con 6 dados y posee un dado comodín dorado en su reserva."
+	}
+]
+
+# ── Progreso de la Run (Roguelike) ─────────────────────────────────────────────
+var current_ante: int = 1
+var encounter_index: int = 0
+var player_gold: int = 10
+var relic_manager = null
+
+# ── Modelos de datos de dados ──────────────────────────────────────────────────
 var player_dice: Array[Die] = []
 var enemy_dice:  Array[Die] = []
 
 var player_dice_views: Array[DiceFace] = []
 var enemy_dice_views:  Array[DiceFace] = []
 
-# ── Economía y Roguelike ───────────────────────────────────────────────────────
-var player_gold: int = 10
-var relic_manager = null
-
 # ── Estado de la mesa ──────────────────────────────────────────────────────────
 var current_bet: Dictionary = {"quantity": 0, "face": 0}
 var is_player_turn: bool = true
 var is_thinking: bool = false
 
-enum State { BETTING, ROUND_OVER, GAME_OVER }
+enum State { BETTING, ROUND_OVER, MATCH_WON, GAME_OVER, RUN_WON }
 var state: State = State.BETTING
 
 const JOKER_FACE = 1
@@ -34,9 +76,9 @@ var enemy_ai: EnemyAI
 var _log_buffer: String = ""
 
 # ── Referencias UI ─────────────────────────────────────────────────────────────
+@onready var stage_label     : Label         = $UILayer/Margin/Layout/LeftPlayArea/TopBar/StagePanel/Margin/StageLabel
 @onready var gold_label      : Label         = $UILayer/Margin/Layout/LeftPlayArea/TopBar/GoldLabel
 @onready var relics_label    : Label         = $UILayer/Margin/Layout/LeftPlayArea/TopBar/RelicsLabel
-@onready var btn_open_shop   : Button        = $UILayer/Margin/Layout/LeftPlayArea/TopBar/BtnOpenShop
 
 @onready var game_log        : RichTextLabel = $UILayer/Margin/Layout/RightLogArea/LogPanel/Margin/VBox/GameLog
 @onready var enemy_title     : Label         = $UILayer/Margin/Layout/LeftPlayArea/EnemyPanel/Margin/VBox/Header/EnemyTitle
@@ -56,14 +98,12 @@ var _log_buffer: String = ""
 @onready var btn_dudo        : Button        = $UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/BtnDudo
 @onready var btn_action      : Button        = $UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/BtnAction
 
-@onready var shop_overlay    : PanelContainer = $UILayer/ShopOverlay
+@onready var shop_overlay         : PanelContainer = $UILayer/ShopOverlay
+@onready var next_encounter_label : Label          = $UILayer/ShopOverlay/Margin/VBox/NextEncounterLabel
+@onready var btn_next_match       : Button         = $UILayer/ShopOverlay/Margin/VBox/BtnNextMatch
 
 func _ready() -> void:
-	relic_manager = RelicManager.new()
-	enemy_ai = EnemyAI.new(EnemyAI.Personality.BLUFFER, "Jack 'Ojo de Cristal' [Farolero]")
-	enemy_title.text = "RIVAL: " + enemy_ai.boss_name
-	_update_top_bar()
-	start_match(5, 5)
+	start_new_run()
 
 # ── Sistema de Log enriquecido con BBCode ──────────────────────────────────────
 
@@ -75,21 +115,61 @@ func _clear_log() -> void:
 	_log_buffer = ""
 	game_log.text = ""
 
-# ── Ciclo de Vida: Partida y Ronda ─────────────────────────────────────────────
+# ── Ciclo de Vida de la Run ────────────────────────────────────────────────────
 
-func start_match(player_count: int, enemy_count: int) -> void:
-	player_dice = _create_dice(player_count)
-	enemy_dice  = _create_dice(enemy_count)
+func start_new_run() -> void:
+	current_ante = 1
+	encounter_index = 0
+	player_gold = 10
+	relic_manager = RelicManager.new()
+	
+	# La reserva inicial del jugador: 5 dados normales
+	player_dice = _create_dice(5)
+	
 	_clear_log()
-	log_msg("[b][color=#f5d76e]═══ NUEVA PARTIDA DE LIAR'S DICE ═══[/color][/b]")
-	log_msg("[color=#aaaaaa]El primero en quedarse sin dados en la mesa pierde.[/color]")
+	log_msg("[b][color=#f5d76e]══════ INICIO DE NUEVA RUN (ANTE %d) ══════[/color][/b]" % current_ante)
+	log_msg("[color=#aaaaaa]Supera a 3 rivales y derrota al Jefe para completar el Ante.[/color]")
+	log_msg("[color=#aaaaaa]Solo podrás acceder a la Tienda al ganar cada combate.[/color]\n")
+	
+	start_encounter(encounter_index)
+
+func start_encounter(idx: int) -> void:
+	shop_overlay.visible = false
+	var enc: Dictionary = ENCOUNTERS[idx]
+	
+	# Configurar IA rival
+	enemy_ai = EnemyAI.new(enc.personality, enc.name)
+	enemy_title.text = "RIVAL: " + enc.title
+	
+	# Crear dados del rival (si es el jefe, tiene 1 comodín especial)
+	enemy_dice.clear()
+	var rival_dice_count: int = enc.dice_count
+	if enc.is_boss:
+		enemy_dice.append(Die.new(Die.Type.WILDCARD)) # Dado tramposo del jefe
+		for _i in range(rival_dice_count - 1):
+			enemy_dice.append(Die.new())
+	else:
+		enemy_dice = _create_dice(rival_dice_count)
+
+	# Asegurar que el jugador comience con al menos 5 dados (conservando especiales)
+	while player_dice.size() < 5:
+		player_dice.append(Die.new())
+
+	_update_top_bar()
+	
+	if enc.is_boss:
+		log_msg("\n[b][color=#e53e3e]⚠ ¡ADVERTENCIA DE JEFE! Te enfrentas a %s[/color][/b]" % enc.name)
+		log_msg("[color=#feb2b2]%s[/color]" % enc.desc)
+	else:
+		log_msg("\n[b][color=#63b3ed]⚔ Encuentro %d/4: %s[/color][/b]" % [idx + 1, enc.title])
+		log_msg("[color=#cbd5e0]%s[/color]" % enc.desc)
+
 	start_round()
 
 func start_round() -> void:
 	is_thinking = false
 	shop_overlay.visible = false
 	
-	# Tirar dados físicos de ambos jugadores
 	for die: Die in player_dice:
 		die.roll()
 	for die: Die in enemy_dice:
@@ -107,15 +187,15 @@ func start_round() -> void:
 	_reset_spinboxes_for_turn()
 	_update_top_bar()
 
-	log_msg("\n[b][color=#70c080]─── Inicio de la Ronda ───[/color][/b]")
+	log_msg("\n[b][color=#70c080]─── Nueva Mano ───[/color][/b]")
 	log_msg("Mesa: Tienes [b]%d[/b] dados. El rival tiene [b]%d[/b]." % [player_dice.size(), enemy_dice.size()])
 
-	# Reliquia: Lente de Cuarzo revela 1 dado del rival
+	# Reliquia: Lente de Cuarzo
 	if relic_manager.has_relic("spy_lens") and not enemy_dice_views.is_empty():
 		enemy_dice_views[0].face_down = false
 		log_msg("[color=#63b3ed]👁️ [b]Lente de Cuarzo:[/b] Puedes espiar que el rival tiene un dado con cara %d![/color]" % enemy_dice[0].face)
 
-	log_msg("[color=#e0e0e0]Empiezas tú. Haz tu apuesta o subida.[/color]")
+	log_msg("[color=#e0e0e0]Empiezas tú. Haz tu apuesta.[/color]")
 
 func _create_dice(count: int) -> Array[Die]:
 	var hand: Array[Die] = []
@@ -126,7 +206,7 @@ func _create_dice(count: int) -> Array[Die]:
 func _sort_dice(dice: Array[Die]) -> void:
 	dice.sort_custom(func(a, b): return a.face < b.face)
 
-# ── Renderizado y Animación de Dados Visuales ──────────────────────────────────
+# ── Renderizado y Animación de Dados ───────────────────────────────────────────
 
 func _clear_dice_container(container: HBoxContainer) -> void:
 	for child in container.get_children():
@@ -138,7 +218,6 @@ func _render_dice_views() -> void:
 	player_dice_views.clear()
 	enemy_dice_views.clear()
 
-	# Dados del jugador
 	for i in range(player_dice.size()):
 		var die: Die = player_dice[i]
 		var view := DiceFace.new(die.face, die.type, false)
@@ -146,7 +225,6 @@ func _render_dice_views() -> void:
 		player_dice_views.append(view)
 		view.play_roll_anim(float(i) * 0.05)
 
-	# Dados del rival
 	for i in range(enemy_dice.size()):
 		var die: Die = enemy_dice[i]
 		var view := DiceFace.new(die.face, die.type, true)
@@ -160,6 +238,14 @@ func _render_dice_views() -> void:
 # ── Actualización de Interfaz ──────────────────────────────────────────────────
 
 func _update_top_bar() -> void:
+	var enc: Dictionary = ENCOUNTERS[encounter_index]
+	var stage_text: String
+	if enc.is_boss:
+		stage_text = "👑 ANTE %d — Encuentro 4/4 (¡JEFE!)" % current_ante
+	else:
+		stage_text = "🏆 ANTE %d — Encuentro %d/4 (Rival)" % [current_ante, encounter_index + 1]
+	stage_label.text = stage_text
+
 	gold_label.text = "💰 Oro: %d" % player_gold
 	if relic_manager == null or relic_manager.active_relics.is_empty():
 		relics_label.text = "Reliquias: (ninguna)"
@@ -208,23 +294,34 @@ func _set_state(new_state: State) -> void:
 			btn_bet.disabled   = (not is_player_turn) or is_thinking
 			btn_dudo.disabled  = (current_bet.quantity == 0) or (not is_player_turn) or is_thinking
 			btn_action.visible = false
-			btn_open_shop.disabled = false
 			spin_quantity.editable = is_player_turn and not is_thinking
 			spin_face.editable     = is_player_turn and not is_thinking
 		State.ROUND_OVER:
 			btn_bet.disabled   = true
 			btn_dudo.disabled  = true
-			btn_action.text    = "Siguiente Ronda"
+			btn_action.text    = "Siguiente Mano"
 			btn_action.visible = true
-			btn_open_shop.disabled = false
+			spin_quantity.editable = false
+			spin_face.editable     = false
+		State.MATCH_WON:
+			btn_bet.disabled   = true
+			btn_dudo.disabled  = true
+			btn_action.text    = "Ir a la Tienda 🛒"
+			btn_action.visible = true
 			spin_quantity.editable = false
 			spin_face.editable     = false
 		State.GAME_OVER:
 			btn_bet.disabled   = true
 			btn_dudo.disabled  = true
-			btn_action.text    = "Revancha (Nueva Partida)"
+			btn_action.text    = "Reintentar Run (Nueva Partida)"
 			btn_action.visible = true
-			btn_open_shop.disabled = false
+			spin_quantity.editable = false
+			spin_face.editable     = false
+		State.RUN_WON:
+			btn_bet.disabled   = true
+			btn_dudo.disabled  = true
+			btn_action.text    = "¡Victoria Total! (Nueva Run)"
+			btn_action.visible = true
 			spin_quantity.editable = false
 			spin_face.editable     = false
 
@@ -268,10 +365,10 @@ func _on_btn_action_pressed() -> void:
 	match state:
 		State.ROUND_OVER:
 			start_round()
-		State.GAME_OVER:
-			player_gold = 10
-			relic_manager = RelicManager.new()
-			start_match(5, 5)
+		State.MATCH_WON:
+			_open_victory_shop()
+		State.GAME_OVER, State.RUN_WON:
+			start_new_run()
 
 # ── Turno del Enemigo (IA) ─────────────────────────────────────────────────────
 
@@ -333,7 +430,7 @@ func resolve_dudo(player_called: bool) -> void:
 		var reveal_time: float = float(enemy_dice_views.size()) * 0.12 + 0.35
 		await get_tree().create_timer(reveal_time).timeout
 
-	# 2. Contar dados físicos válidos
+	# 2. Contar dados físicos
 	var physical_count: int = 0
 	var f_str: String = FACE_SYMBOLS[bet_face]
 
@@ -349,7 +446,7 @@ func resolve_dudo(player_called: bool) -> void:
 			physical_count += 1
 			enemy_dice_views[i].is_highlighted = true
 
-	# 3. Intercepción de Reliquias (Modificadores)
+	# 3. Intercepción de Reliquias
 	var relic_bonus: int = relic_manager.apply_dice_count_modifiers(bet_face, is_joker_round, physical_count, player_called)
 	var final_count: int = physical_count + relic_bonus
 
@@ -372,13 +469,12 @@ func resolve_dudo(player_called: bool) -> void:
 			log_msg("[color=#fc8181]❌ La apuesta del rival era real. ¡Tu duda fue errónea![/color]")
 		else:
 			log_msg("[color=#68d391]🎯 ¡Cazaste el farol del rival! La apuesta era falsa.[/color]")
-			# Recompensa de oro por descubrir farol
-			var gold_reward: int = 3
+			var gold_reward: int = 2
 			if relic_manager.has_relic("gambler_pouch"):
 				gold_reward += 4
 				log_msg("[color=#f6e05e]💰 ¡Bolsa de Tahúr te otorga +4 oro extra![/color]")
 			player_gold += gold_reward
-			log_msg("[color=#f6e05e]+%d 🪙 de oro ganado.[/color]" % gold_reward)
+			log_msg("[color=#f6e05e]+%d 🪙 de oro ganado por cazar el farol.[/color]" % gold_reward)
 	else:
 		player_loses = not bet_was_true
 		if player_loses:
@@ -386,7 +482,7 @@ func resolve_dudo(player_called: bool) -> void:
 		else:
 			log_msg("[color=#68d391]🎯 ¡Tu apuesta era legítima! El rival dudó equivocadamente.[/color]")
 			player_gold += 2
-			log_msg("[color=#f6e05e]+2 🪙 por defender tu farol/apuesta.[/color]")
+			log_msg("[color=#f6e05e]+2 🪙 por defender tu apuesta.[/color]")
 
 	_update_top_bar()
 
@@ -410,35 +506,71 @@ func resolve_dudo(player_called: bool) -> void:
 	player_count_lbl.text = "%d dados" % player_dice.size()
 	enemy_count_lbl.text  = "%d dados" % enemy_dice.size()
 
-	# 5. Comprobar fin de partida o siguiente ronda
+	# 5. Comprobar resolución del combate
 	if is_inside_tree():
 		await get_tree().create_timer(0.5).timeout
 	is_thinking = false
 
 	if player_dice.is_empty():
-		_end_game(false)
+		_handle_player_defeat()
 	elif enemy_dice.is_empty():
-		_end_game(true)
+		_handle_match_victory()
 	else:
 		_set_state(State.ROUND_OVER)
 
-func _end_game(player_won: bool) -> void:
+# ── Victoria / Derrota de Combate ─────────────────────────────────────────────
+
+func _handle_player_defeat() -> void:
 	log_msg("═══════════════════════════════════════")
-	if player_won:
-		log_msg("[b][color=#f6e05e]🏆 ¡VICTORIA TOTAL! Has derrotado a %s.[/color][/b]" % enemy_ai.boss_name)
-		log_msg("[color=#68d391]El rival se quedó sin dados en la mesa.[/color]")
-	else:
-		log_msg("[b][color=#e53e3e]💀 DERROTA. Te quedaste sin dados.[/color][/b]")
-		log_msg("[color=#fc8181]Mejor suerte en la próxima mano, tahúr.[/color]")
+	log_msg("[b][color=#e53e3e]💀 DERROTA. Te has quedado sin dados.[/color][/b]")
+	log_msg("[color=#fc8181]Tu run ha terminado en el Encuentro %d/4. ¡Mejor suerte la próxima vez![/color]" % (encounter_index + 1))
 	_set_state(State.GAME_OVER)
 
-# ── Interacción con la Tienda (Roguelike Shop) ──────────────────────────────────
+func _handle_match_victory() -> void:
+	var enc: Dictionary = ENCOUNTERS[encounter_index]
+	var reward: int = enc.reward
+	player_gold += reward
+	_update_top_bar()
 
-func _on_btn_open_shop_pressed() -> void:
+	log_msg("═══════════════════════════════════════")
+	log_msg("[b][color=#f6e05e]🎉 ¡HAS DERROTADO A %s![/color][/b]" % enc.name)
+	log_msg("[color=#68d391]Recompensa de combate: +%d 🪙 de oro.[/color]" % reward)
+
+	if enc.is_boss:
+		# ¡Has vencido al Jefe de la Run!
+		log_msg("\n[b][color=#f6e05e]🏆 ¡¡ANTE %d COMPLETADO CON ÉXITO!![/color][/b]" % current_ante)
+		log_msg("[b][color=#68d391]¡Has derrotado al Barón Tramposo y completado la Run Roguelike![/color][/b]")
+		_set_state(State.RUN_WON)
+	else:
+		log_msg("[color=#f5d76e]La Tienda está ahora abierta. Gasta tus ganancias antes del siguiente rival.[/color]")
+		_set_state(State.MATCH_WON)
+		# Abrir la tienda de victoria
+		_open_victory_shop()
+
+# ── Tienda de Victoria (Solo tras ganar el encuentro) ──────────────────────────
+
+func _open_victory_shop() -> void:
 	shop_overlay.visible = true
+	var next_idx: int = encounter_index + 1
+	if next_idx < ENCOUNTERS.size():
+		var next_enc: Dictionary = ENCOUNTERS[next_idx]
+		if next_enc.is_boss:
+			next_encounter_label.text = "⚠️ ¡ATENCIÓN! PRÓXIMO COMBATE: %s (6 dados)" % next_enc.name
+			next_encounter_label.modulate = Color(1.0, 0.3, 0.3)
+			btn_next_match.text = "Enfrentar al Jefe 👑"
+		else:
+			next_encounter_label.text = "Próximo Rival: %s (%d dados)" % [next_enc.name, next_enc.dice_count]
+			next_encounter_label.modulate = Color(0.9, 0.8, 0.4)
+			btn_next_match.text = "Siguiente Rival ➡️"
 
-func _on_btn_close_shop_pressed() -> void:
+func _on_btn_next_match_pressed() -> void:
 	shop_overlay.visible = false
+	encounter_index += 1
+	if encounter_index < ENCOUNTERS.size():
+		start_encounter(encounter_index)
+	else:
+		# Fin del ante
+		start_new_run()
 
 func _on_btn_buy_loaded_pressed() -> void:
 	if player_gold < 5:
@@ -468,7 +600,7 @@ func _on_btn_recover_die_pressed() -> void:
 	player_dice.append(Die.new(Die.Type.NORMAL))
 	_update_top_bar()
 	_render_dice_views()
-	log_msg("[color=#68d391]➕ ¡Has recuperado 1 dado para tu cubilete![/color]")
+	log_msg("[color=#68d391]➕ ¡Has recuperado 1 dado para tu reserva![/color]")
 
 func _on_btn_buy_relic_pressed() -> void:
 	if player_gold < 6:

@@ -1,56 +1,51 @@
 class_name RelicManager
 extends RefCounted
 
-## Gestor de Reliquias: administra el inventario de pasivas del jugador
-## y dispara los hooks en los momentos clave de la ronda.
+## Gestor de Reliquias: administra las pasivas que rompen las reglas de la mesa.
 
 const RelicClass = preload("res://Relic.gd")
 
 var active_relics: Array = []
 
-## Catálogo de reliquias disponibles para la tienda
+## Catálogo oficial de reliquias
 static func get_all_available_relics() -> Array:
 	var list: Array = []
 	
-	# 1. Moneda Falsa
-	var r1 = RelicClass.new(
-		"fake_coin",
-		"Moneda Falsa",
-		"Si cantas Dudo, añade +1 fantasma al conteo de dados en la mesa a tu favor.",
+	# 1. Monóculo de Rayos X
+	list.append(RelicClass.new(
+		"xray_monocle",
+		"Monóculo de Rayos X",
+		"Permite ver permanentemente 1 dado al azar del cubilete rival antes de empezar cada ronda.",
 		6,
-		"🪙"
-	)
-	list.append(r1)
+		"🧐"
+	))
 
-	# 2. Lente de Cuarzo
-	var r2 = RelicClass.new(
-		"spy_lens",
-		"Lente de Cuarzo",
-		"Al empezar la ronda, revela permanentemente 1 dado al azar del rival.",
+	# 2. Espejo Oculto
+	list.append(RelicClass.new(
+		"hidden_mirror",
+		"Espejo Oculto",
+		"Permite relanzar en secreto 1 de tus propios dados una vez por turno de apuestas.",
 		7,
-		"👁️"
-	)
-	list.append(r2)
+		"🪞"
+	))
 
-	# 3. Imán de Ases
-	var r3 = RelicClass.new(
-		"ace_magnet",
-		"Imán de Ases",
-		"Los comodines (1) suman +1 extra al conteo en cualquier apuesta regular.",
-		8,
-		"🧲"
-	)
-	list.append(r3)
-
-	# 4. Bolsa de Tahúr
-	var r4 = RelicClass.new(
-		"gambler_pouch",
-		"Bolsa de Tahúr",
-		"Ganas +4 de oro adicional cada vez que descubres un farol con éxito.",
+	# 3. Póliza de Seguro
+	list.append(RelicClass.new(
+		"insurance_policy",
+		"Póliza de Seguro",
+		"Si pierdes un dado por fallar al cantar Dudo o que te cacen, recibes +5 🪙 para la tienda.",
 		5,
-		"💰"
-	)
-	list.append(r4)
+		"📜"
+	))
+
+	# 4. Báscula Trucada
+	list.append(RelicClass.new(
+		"rigged_scale",
+		"Báscula Trucada",
+		"Obliga a los rivales a incrementar la apuesta en al menos +2 dados en lugar de +1.",
+		8,
+		"⚖️"
+	))
 
 	return list
 
@@ -72,15 +67,7 @@ func trigger_round_start(context: Dictionary) -> void:
 func apply_dice_count_modifiers(bet_face: int, is_joker_round: bool, current_count: int, player_called: bool) -> int:
 	var bonus: int = 0
 	for r in active_relics:
-		match r.id:
-			"fake_coin":
-				if player_called:
-					bonus += 1
-			"ace_magnet":
-				if not is_joker_round:
-					bonus += 1
-			_:
-				bonus += r.modify_dice_count(bet_face, is_joker_round, current_count, player_called)
+		bonus += r.modify_dice_count(bet_face, is_joker_round, current_count, player_called)
 	return bonus
 
 func trigger_dudo_resolved(won_dudo: bool, context: Dictionary) -> void:

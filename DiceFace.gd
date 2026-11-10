@@ -70,6 +70,7 @@ func _bg_color() -> Color:
 		Die.Type.CRYSTAL:  return Color(0.75, 0.92, 1.0, 0.85) # Cristal translúcido
 		Die.Type.VAMPIRIC: return Color(0.48, 0.05, 0.08) # Carmesí profundo
 		Die.Type.WILDCARD: return Color(1.0, 0.85, 0.25) # Dorado reluciente
+		Die.Type.CURSED:   return Color(0.18, 0.10, 0.26) # Púrpura oscuro maldito
 		_:                 return Color(0.96, 0.94, 0.89) # Marfil clásico
 
 func _pip_color() -> Color:
@@ -79,6 +80,7 @@ func _pip_color() -> Color:
 		Die.Type.CRYSTAL:  return Color(0.08, 0.35, 0.70)
 		Die.Type.VAMPIRIC: return Color(0.98, 0.75, 0.75)
 		Die.Type.WILDCARD: return Color(0.35, 0.20, 0.0)
+		Die.Type.CURSED:   return Color(0.85, 0.35, 0.95)
 		_:                 return Color(0.12, 0.12, 0.14)
 
 func _border_color() -> Color:
@@ -93,6 +95,7 @@ func _border_color() -> Color:
 		Die.Type.CRYSTAL:  return Color(0.45, 0.80, 1.0)
 		Die.Type.VAMPIRIC: return Color(0.85, 0.15, 0.20)
 		Die.Type.WILDCARD: return Color(0.85, 0.65, 0.0)
+		Die.Type.CURSED:   return Color(0.60, 0.25, 0.80)
 		_:                 return Color(0.65, 0.60, 0.50)
 
 # ── Dibujado ───────────────────────────────────────────────────────────────────
@@ -186,6 +189,7 @@ func _draw_type_indicator() -> void:
 		Die.Type.CRYSTAL:  badge_c = Color(0.3, 0.85, 1.0)
 		Die.Type.VAMPIRIC: badge_c = Color(0.95, 0.2, 0.25)
 		Die.Type.WILDCARD: badge_c = Color(1.0, 0.9, 0.1)
+		Die.Type.CURSED:   badge_c = Color(0.75, 0.25, 0.95)
 		_:                 badge_c = Color.WHITE
 		
 	draw_circle(badge_pos, 5.0, badge_c)
@@ -213,6 +217,15 @@ func play_reveal_anim(delay: float = 0.0) -> void:
 		face_down = false
 	)
 	t.tween_property(self, "scale", Vector2.ONE, 0.18).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BACK)
+
+## Animación de rotura de dado de cristal
+func play_shatter_anim() -> void:
+	is_loser = true
+	var t := create_tween().set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_IN)
+	t.parallel().tween_property(self, "modulate", Color(1.5, 0.4, 0.4, 0.0), 0.3)
+	t.parallel().tween_property(self, "scale", Vector2(1.5, 1.5), 0.3)
+	t.parallel().tween_property(self, "rotation", randf_range(-1.0, 1.0), 0.3)
+	t.tween_callback(queue_free)
 
 ## Animación cuando el dado es eliminado de la mesa
 func play_vanish_anim() -> void:

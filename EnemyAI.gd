@@ -26,8 +26,14 @@ func decide_action(
 	enemy_dice: Array[Die],
 	player_dice_count: int,
 	current_bet: Dictionary,
-	joker_face: int = 1
+	joker_face: int = 1,
+	min_raise_step: int = 1,
+	is_ordago: bool = false
 ) -> Dictionary:
+	# Si el jugador lanzó un Órdago (All-In), el rival está obligado a responder únicamente con Dudo
+	if is_ordago:
+		return {"action": "dudo"}
+
 	var my_dice_count: int = enemy_dice.size()
 	var total_dice: int = my_dice_count + player_dice_count
 	var cur_q: int = current_bet.quantity
@@ -57,41 +63,33 @@ func decide_action(
 	var doubt_threshold: float = 0.0
 	match personality:
 		Personality.CAUTIOUS:
-			# Duda si la apuesta supera la media esperada por más de 0.6
 			doubt_threshold = expected_total_table + 0.6
 		Personality.AGGRESSIVE:
-			# Asume riesgos: aguanta apuestas más altas
 			doubt_threshold = expected_total_table + 1.8
 		Personality.BLUFFER:
-			# Variable e impredecible: a veces duda con poco, a veces aguanta demasiado
 			doubt_threshold = expected_total_table + randf_range(0.4, 2.2)
 		Personality.CHEATER_BOSS:
-			# El jefe evalúa con precisión quirúrgica
 			doubt_threshold = expected_total_table + 0.95
 
 	if float(cur_q) > doubt_threshold:
 		return {"action": "dudo"}
 
-	# 4. Decidir subida de apuesta
-	return _make_raise(enemy_dice, total_dice, cur_q, cur_f, joker_face)
+	# 4. Decidir subida de apuesta (respetando min_raise_step si hay Báscula Trucada)
+	return _make_raise(enemy_dice, total_dice, cur_q, cur_f, joker_face, min_raise_step)
 
 func _make_initial_bet(enemy_dice: Array[Die], total_dice: int, joker_face: int) -> Dictionary:
-	# Contar frecuencias de caras propias
 	var counts := _count_faces(enemy_dice, joker_face)
 	var best_face: int = _get_best_face(counts, joker_face)
 	
 	match personality:
 		Personality.BLUFFER:
-			# 30% de probabilidad de abrir con farol absoluto (cara donde tiene 0 dados)
 			if randf() < 0.35:
 				var weak_face: int = randi_range(2, 6)
 				return {"action": "bet", "quantity": maxi(1, int(total_dice * 0.2)), "face": weak_face}
 		Personality.AGGRESSIVE:
-			# Abre con una apuesta fuerte en su cara favorita
 			var strong_q: int = maxi(1, counts.get(best_face, 1) + 1)
 			return {"action": "bet", "quantity": strong_q, "face": best_face}
 
-	# Apertura estándar segura
 	var base_q: int = maxi(1, counts.get(best_face, 1))
 	return {"action": "bet", "quantity": base_q, "face": best_face}
 
@@ -100,10 +98,19 @@ func _make_raise(
 	total_dice: int,
 	cur_q: int,
 	cur_f: int,
-	joker_face: int
+	joker_face: int,
+	min_raise_step: int = 1
 ) -> Dictionary:
 	var counts := _count_faces(enemy_dice, joker_face)
 	var best_face: int = _get_best_face(counts, joker_face)
+
+	# Si hay Báscula Trucada (min_raise_step >= 2), el rival está obligado a subir la cantidad
+	if min_raise_step >= 2:
+		var target_q: int = cur_q + min_raise_step
+		if counts.get(best_face, 0) > counts.get(cur_f, 0):
+			return {"action": "bet", "quantity": target_q, "face": best_face}
+		else:
+			return {"action": "bet", "quantity": target_q, "face": cur_f}
 
 	# Si es Farolero, posibilidad de cambiar a una cara falsa
 	if personality == Personality.BLUFFER and randf() < 0.28:
@@ -117,7 +124,6 @@ func _make_raise(
 	if best_face > cur_f and counts.get(best_face, 0) >= 2:
 		return {"action": "bet", "quantity": cur_q, "face": best_face}
 
-	# Si nuestra cara favorita es menor o igual, o no tenemos cara ventajosa:
 	# Subir cantidad de la apuesta actual o cambiar a nuestra mejor cara con cantidad +1
 	if counts.get(best_face, 0) > counts.get(cur_f, 0):
 		return {"action": "bet", "quantity": cur_q + 1, "face": best_face}
@@ -131,7 +137,6 @@ func _count_faces(enemy_dice: Array[Die], joker_face: int) -> Dictionary:
 
 	for d: Die in enemy_dice:
 		counts[d.face] = counts.get(d.face, 0) + 1
-		# Los comodines (1) suman a todas las demás caras salvo que sea ronda de 1s
 		if d.face == joker_face:
 			for f in range(2, 7):
 				counts[f] = counts.get(f, 0) + 1
@@ -140,7 +145,6 @@ func _count_faces(enemy_dice: Array[Die], joker_face: int) -> Dictionary:
 func _get_best_face(counts: Dictionary, joker_face: int) -> int:
 	var best_f: int = 2
 	var max_c: int = -1
-	# Preferir caras de 2 a 6 con más dados
 	for f in range(2, 7):
 		var c: int = counts.get(f, 0)
 		if c > max_c:

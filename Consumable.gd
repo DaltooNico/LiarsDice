@@ -1,7 +1,7 @@
 class_name Consumable
 extends RefCounted
 
-## Objeto consumible de un solo uso para sabotear al rival o salvar el turno (estilo Tarots de Balatro).
+## Objeto consumible de un solo uso para sabotear al rival o salvar el turno (Trampas bajo la manga).
 
 const SelfClass = preload("res://Consumable.gd")
 
@@ -18,40 +18,35 @@ func _init(p_id: String = "", p_name: String = "", p_desc: String = "", p_cost: 
 	cost = p_cost
 	icon_symbol = p_icon
 
-## Catálogo de consumibles disponibles en la tienda
+## Catálogo oficial de consumibles
 static func get_catalog() -> Array:
 	var list: Array = []
 	
-	list.append(SelfClass.new(
-		"secret_reroll",
-		"Cubilete Falso",
-		"Relanza 1 de tus dados en secreto durante tu turno.",
-		4,
-		"🔄"
-	))
-	
-	list.append(SelfClass.new(
-		"phantom_die",
-		"Dado Fantasma",
-		"Añade un dado espectral invisible a la mesa que suma +1 a tu apuesta.",
-		5,
-		"👻"
-	))
-	
+	# 1. Trago de Whisky
 	list.append(SelfClass.new(
 		"whiskey_shot",
-		"Trago Fuerte",
-		"Intimida al rival: lo fuerza a subir la cantidad obligatoriamente o dudar.",
+		"Trago de Whisky",
+		"Fuerza al oponente a re-tirar inmediatamente 2 de sus dados ocultos.",
 		4,
 		"🥃"
 	))
-	
+
+	# 2. Giro de Dado
 	list.append(SelfClass.new(
-		"spy_mirror",
-		"Espejo de Mano",
-		"Espía y revela 1 dado oculto del rival de inmediato.",
+		"die_flip",
+		"Giro de Dado",
+		"Voltea uno de tus dados a su cara geométrica opuesta (1↔6, 2↔5, 3↔4).",
 		5,
-		"🔍"
+		"🔄"
+	))
+
+	# 3. Órdago / All-In
+	list.append(SelfClass.new(
+		"all_in",
+		"Órdago (All-In)",
+		"Lanza un órdago: obliga al rival a responder únicamente con Dudo, impidiéndole subir la apuesta.",
+		6,
+		"⚡"
 	))
 	
 	return list

@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://bcb0d2eb5949c"]
+[gd_scene load_steps=10 format=3 uid="uid://bcb0d2eb5949c"]
 
 [ext_resource type="Script" path="res://Main.gd" id="1_script"]
 [ext_resource type="Shader" path="res://crt_shader.gdshader" id="2_crt"]
@@ -64,6 +64,32 @@ corner_radius_top_right = 8
 corner_radius_bottom_left = 8
 corner_radius_bottom_right = 8
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_btn_shop"]
+bg_color = Color(0.65, 0.45, 0.12, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.95, 0.78, 0.32, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_left = 8
+corner_radius_bottom_right = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_modal"]
+bg_color = Color(0.06, 0.08, 0.10, 0.96)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(0.85, 0.68, 0.22, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_left = 16
+corner_radius_bottom_right = 16
+shadow_color = Color(0, 0, 0, 0.7)
+shadow_size = 20
+
 [node name="Main" type="Node2D"]
 script = ExtResource("1_script")
 
@@ -100,7 +126,30 @@ theme_override_constants/separation = 20
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 1.8
-theme_override_constants/separation = 12
+theme_override_constants/separation = 10
+
+[node name="TopBar" type="HBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="GoldLabel" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/TopBar"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.85, 0.35, 1)
+theme_override_font_sizes/font_size = 18
+text = "💰 Oro: 10"
+
+[node name="RelicsLabel" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.8, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 16
+text = "Reliquias: (ninguna)"
+
+[node name="BtnOpenShop" type="Button" parent="UILayer/Margin/Layout/LeftPlayArea/TopBar"]
+custom_minimum_size = Vector2(100, 32)
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxFlat_btn_shop")
+text = "🛒 Tienda"
 
 [node name="EnemyPanel" type="PanelContainer" parent="UILayer/Margin/Layout/LeftPlayArea"]
 layout_mode = 2
@@ -109,13 +158,13 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 [node name="Margin" type="MarginContainer" parent="UILayer/Margin/Layout/LeftPlayArea/EnemyPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 10
+theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_bottom = 10
 
 [node name="VBox" type="VBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/EnemyPanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="Header" type="HBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/EnemyPanel/Margin/VBox"]
 layout_mode = 2
@@ -124,13 +173,13 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.9, 0.85, 0.7, 1)
-theme_override_font_sizes/font_size = 19
+theme_override_font_sizes/font_size = 18
 text = "RIVAL: Tahúr Sombrío [Farolero]"
 
 [node name="EnemyCount" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/EnemyPanel/Margin/VBox/Header"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.8, 0.4, 0.4, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 16
 text = "5 dados"
 
 [node name="EnemyDiceRow" type="HBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/EnemyPanel/Margin/VBox"]
@@ -146,9 +195,9 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_bet")
 [node name="Margin" type="MarginContainer" parent="UILayer/Margin/Layout/LeftPlayArea/BetPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 8
+theme_override_constants/margin_top = 6
 theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_bottom = 6
 
 [node name="VBox" type="VBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/BetPanel/Margin"]
 layout_mode = 2
@@ -182,13 +231,13 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 [node name="Margin" type="MarginContainer" parent="UILayer/Margin/Layout/LeftPlayArea/PlayerPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 10
+theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_bottom = 10
 
 [node name="VBox" type="VBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/PlayerPanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="Header" type="HBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/PlayerPanel/Margin/VBox"]
 layout_mode = 2
@@ -197,13 +246,13 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.9, 0.95, 0.85, 1)
-theme_override_font_sizes/font_size = 19
+theme_override_font_sizes/font_size = 18
 text = "TUS DADOS (Secretos para el rival)"
 
 [node name="PlayerCount" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/PlayerPanel/Margin/VBox/Header"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.4, 0.8, 0.5, 1)
-theme_override_font_sizes/font_size = 17
+theme_override_font_sizes/font_size = 16
 text = "5 dados"
 
 [node name="PlayerDiceRow" type="HBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/PlayerPanel/Margin/VBox"]
@@ -219,23 +268,23 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 [node name="Margin" type="MarginContainer" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 10
+theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 10
+theme_override_constants/margin_bottom = 8
 
 [node name="ControlsHBox" type="HBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 16
+theme_override_constants/separation = 14
 
 [node name="LabelQ" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 15
 text = "Cantidad:"
 vertical_alignment = 1
 
 [node name="QuantitySpinBox" type="SpinBox" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
-custom_minimum_size = Vector2(70, 36)
+custom_minimum_size = Vector2(65, 34)
 layout_mode = 2
 min_value = 1.0
 max_value = 25.0
@@ -244,12 +293,12 @@ alignment = 1
 
 [node name="LabelF" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 15
 text = "Cara:"
 vertical_alignment = 1
 
 [node name="FaceSpinBox" type="SpinBox" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
-custom_minimum_size = Vector2(70, 36)
+custom_minimum_size = Vector2(65, 34)
 layout_mode = 2
 min_value = 1.0
 max_value = 6.0
@@ -257,24 +306,24 @@ value = 2.0
 alignment = 1
 
 [node name="BtnBet" type="Button" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
-custom_minimum_size = Vector2(110, 40)
+custom_minimum_size = Vector2(100, 38)
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_bet")
 text = "Apostar"
 
 [node name="BtnDudo" type="Button" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
-custom_minimum_size = Vector2(100, 40)
+custom_minimum_size = Vector2(95, 38)
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 15
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_dudo")
 text = "¡DUDO!"
 
 [node name="BtnAction" type="Button" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
 visible = false
-custom_minimum_size = Vector2(130, 40)
+custom_minimum_size = Vector2(125, 38)
 layout_mode = 2
-theme_override_font_sizes/font_size = 16
+theme_override_font_sizes/font_size = 15
 text = "Nueva Ronda"
 
 [node name="RightLogArea" type="VBoxContainer" parent="UILayer/Margin/Layout"]
@@ -290,13 +339,13 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 [node name="Margin" type="MarginContainer" parent="UILayer/Margin/Layout/RightLogArea/LogPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
+theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_bottom = 10
 
 [node name="VBox" type="VBoxContainer" parent="UILayer/Margin/Layout/RightLogArea/LogPanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 8
+theme_override_constants/separation = 6
 
 [node name="LogTitle" type="Label" parent="UILayer/Margin/Layout/RightLogArea/LogPanel/Margin/VBox"]
 layout_mode = 2
@@ -307,9 +356,83 @@ text = "CRÓNICA DE LA MESA"
 [node name="GameLog" type="RichTextLabel" parent="UILayer/Margin/Layout/RightLogArea/LogPanel/Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_font_sizes/normal_font_size = 14
+theme_override_font_sizes/normal_font_size = 13
 bbcode_enabled = true
 scroll_following = true
+
+[node name="ShopOverlay" type="PanelContainer" parent="UILayer"]
+visible = false
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -240.0
+offset_right = 300.0
+offset_bottom = 240.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_modal")
+
+[node name="Margin" type="MarginContainer" parent="UILayer/ShopOverlay"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="UILayer/ShopOverlay/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="ShopTitle" type="Label" parent="UILayer/ShopOverlay/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.85, 0.35, 1)
+theme_override_font_sizes/font_size = 22
+text = "🏪 MERCADO DE TAHÚRES"
+horizontal_alignment = 1
+
+[node name="ShopSubtitle" type="Label" parent="UILayer/ShopOverlay/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.75, 0.8, 1)
+theme_override_font_sizes/font_size = 13
+text = "Modifica tu reserva de dados o adquiere reliquias tramposas."
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="UILayer/ShopOverlay/Margin/VBox"]
+layout_mode = 2
+
+[node name="ShopItemsList" type="VBoxContainer" parent="UILayer/ShopOverlay/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="BtnBuyLoaded" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "🎲 Comprar Dado Cargado (Tira 2 veces, guarda el mayor) — 5 🪙"
+
+[node name="BtnBuyWildcard" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "⭐ Comprar Dado Comodín (Cuenta para toda cara) — 8 🪙"
+
+[node name="BtnRecoverDie" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "➕ Recuperar 1 Dado Perdido — 4 🪙"
+
+[node name="BtnBuyRelic" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
+custom_minimum_size = Vector2(0, 42)
+layout_mode = 2
+text = "🏺 Adquirir Reliquia Misteriosa — 6 🪙"
+
+[node name="BtnCloseShop" type="Button" parent="UILayer/ShopOverlay/Margin/VBox"]
+custom_minimum_size = Vector2(160, 38)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Volver a la Mesa"
 
 [node name="CRTOverlay" type="ColorRect" parent="UILayer"]
 material = SubResource("ShaderMaterial_crt")
@@ -320,6 +443,12 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
+[connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/TopBar/BtnOpenShop" to="." method="_on_btn_open_shop_pressed"]
 [connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/BtnBet" to="." method="_on_btn_bet_pressed"]
 [connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/BtnDudo" to="." method="_on_btn_dudo_pressed"]
 [connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/BtnAction" to="." method="_on_btn_action_pressed"]
+[connection signal="pressed" from="UILayer/ShopOverlay/Margin/VBox/ShopItemsList/BtnBuyLoaded" to="." method="_on_btn_buy_loaded_pressed"]
+[connection signal="pressed" from="UILayer/ShopOverlay/Margin/VBox/ShopItemsList/BtnBuyWildcard" to="." method="_on_btn_buy_wildcard_pressed"]
+[connection signal="pressed" from="UILayer/ShopOverlay/Margin/VBox/ShopItemsList/BtnRecoverDie" to="." method="_on_btn_recover_die_pressed"]
+[connection signal="pressed" from="UILayer/ShopOverlay/Margin/VBox/ShopItemsList/BtnBuyRelic" to="." method="_on_btn_buy_relic_pressed"]
+[connection signal="pressed" from="UILayer/ShopOverlay/Margin/VBox/BtnCloseShop" to="." method="_on_btn_close_shop_pressed"]

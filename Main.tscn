@@ -84,40 +84,40 @@ corner_radius_bottom_left = 6
 corner_radius_bottom_right = 6
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bubble"]
-bg_color = Color(0.12, 0.16, 0.22, 0.9)
+bg_color = Color(0.11, 0.15, 0.20, 0.92)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.4, 0.5, 0.65, 1)
-corner_radius_top_left = 8
-corner_radius_top_right = 8
-corner_radius_bottom_left = 8
-corner_radius_bottom_right = 8
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_oracle"]
-bg_color = Color(0.10, 0.08, 0.18, 0.9)
-border_width_left = 1
-border_width_top = 1
-border_width_right = 1
-border_width_bottom = 1
-border_color = Color(0.55, 0.35, 0.85, 1)
+border_color = Color(0.35, 0.48, 0.65, 1)
 corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_left = 8
 corner_radius_bottom_right = 8
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_slot"]
-bg_color = Color(0.15, 0.18, 0.25, 0.85)
+bg_color = Color(0.13, 0.17, 0.24, 0.9)
 border_width_left = 1
 border_width_top = 1
 border_width_right = 1
 border_width_bottom = 1
-border_color = Color(0.45, 0.60, 0.80, 1)
+border_color = Color(0.40, 0.55, 0.75, 1)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_left = 6
 corner_radius_bottom_right = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_relics_tray"]
+bg_color = Color(0.06, 0.10, 0.08, 0.92)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.65, 0.52, 0.20, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_left = 8
+corner_radius_bottom_right = 8
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_script")
@@ -154,12 +154,12 @@ theme_override_constants/separation = 16
 [node name="LeftPlayArea" type="VBoxContainer" parent="UILayer/Margin/Layout"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.7
-theme_override_constants/separation = 10
+size_flags_stretch_ratio = 1.8
+theme_override_constants/separation = 8
 
 [node name="TopBar" type="HBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea"]
 layout_mode = 2
-theme_override_constants/separation = 14
+theme_override_constants/separation = 16
 
 [node name="StagePanel" type="PanelContainer" parent="UILayer/Margin/Layout/LeftPlayArea/TopBar"]
 layout_mode = 2
@@ -185,13 +185,6 @@ theme_override_colors/font_color = Color(0.98, 0.88, 0.35, 1)
 theme_override_fonts/font = ExtResource("2_pixel_font")
 theme_override_font_sizes/font_size = 13
 text = "$ 10"
-
-[node name="RelicsLabel" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/TopBar"]
-layout_mode = 2
-size_flags_horizontal = 3
-theme_override_colors/font_color = Color(0.8, 0.88, 0.95, 1)
-theme_override_font_sizes/font_size = 12
-text = "Reliquias: (ninguna)"
 
 [node name="EnemyPanel" type="PanelContainer" parent="UILayer/Margin/Layout/LeftPlayArea"]
 layout_mode = 2
@@ -379,10 +372,54 @@ theme_override_fonts/font = ExtResource("2_pixel_font")
 theme_override_font_sizes/font_size = 10
 text = "Siguiente Mano"
 
+[node name="RelicsPanel" type="PanelContainer" parent="UILayer/Margin/Layout/LeftPlayArea"]
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_relics_tray")
+
+[node name="Margin" type="MarginContainer" parent="UILayer/Margin/Layout/LeftPlayArea/RelicsPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 6
+
+[node name="VBox" type="VBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/RelicsPanel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="RelicsHeader" type="HBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/RelicsPanel/Margin/VBox"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/RelicsPanel/Margin/VBox/RelicsHeader"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.85, 0.4, 1)
+theme_override_fonts/font = ExtResource("2_pixel_font")
+theme_override_font_sizes/font_size = 9
+text = "🏺 RELIQUIAS PASIVAS:"
+
+[node name="RelicHoverDesc" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/RelicsPanel/Margin/VBox/RelicsHeader"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.85, 0.90, 0.95, 1)
+theme_override_font_sizes/font_size = 11
+text = "Pasa el ratón sobre una reliquia para leer su poder."
+clip_text = true
+
+[node name="RelicsContainer" type="HBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/RelicsPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="EmptyRelicsLabel" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/RelicsPanel/Margin/VBox/RelicsContainer"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.5, 0.6, 0.55, 1)
+theme_override_font_sizes/font_size = 11
+text = "[ Sin reliquias activas — Cómpralas en la tienda tras ganar ]"
+
 [node name="RightSideArea" type="VBoxContainer" parent="UILayer/Margin/Layout"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.15
+size_flags_stretch_ratio = 1.05
 theme_override_constants/separation = 10
 
 [node name="RivalBox" type="PanelContainer" parent="UILayer/Margin/Layout/RightSideArea"]
@@ -392,13 +429,13 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_bubble")
 [node name="Margin" type="MarginContainer" parent="UILayer/Margin/Layout/RightSideArea/RivalBox"]
 layout_mode = 2
 theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 8
+theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_bottom = 10
 
 [node name="VBox" type="VBoxContainer" parent="UILayer/Margin/Layout/RightSideArea/RivalBox/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 6
 
 [node name="Header" type="HBoxContainer" parent="UILayer/Margin/Layout/RightSideArea/RivalBox/Margin/VBox"]
 layout_mode = 2
@@ -408,8 +445,8 @@ layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.9, 0.8, 0.4, 1)
 theme_override_fonts/font = ExtResource("2_pixel_font")
-theme_override_font_sizes/font_size = 10
-text = "👤 RIVAL"
+theme_override_font_sizes/font_size = 11
+text = "👤 JACK"
 
 [node name="RivalMood" type="Label" parent="UILayer/Margin/Layout/RightSideArea/RivalBox/Margin/VBox/Header"]
 layout_mode = 2
@@ -424,48 +461,6 @@ theme_override_font_sizes/font_size = 12
 text = "«Veremos qué dados tienes ocultos bajo ese cubilete...»"
 autowrap_mode = 2
 
-[node name="OraclePanel" type="PanelContainer" parent="UILayer/Margin/Layout/RightSideArea"]
-layout_mode = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_oracle")
-
-[node name="Margin" type="MarginContainer" parent="UILayer/Margin/Layout/RightSideArea/OraclePanel"]
-layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 8
-
-[node name="VBox" type="VBoxContainer" parent="UILayer/Margin/Layout/RightSideArea/OraclePanel/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 5
-
-[node name="OracleHeader" type="Label" parent="UILayer/Margin/Layout/RightSideArea/OraclePanel/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.70, 1.0, 1)
-theme_override_fonts/font = ExtResource("2_pixel_font")
-theme_override_font_sizes/font_size = 9
-text = "🔮 ORÁCULO DE PROBABILIDAD"
-
-[node name="OddsLabel" type="Label" parent="UILayer/Margin/Layout/RightSideArea/OraclePanel/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.9, 0.5, 1)
-theme_override_fonts/font = ExtResource("2_pixel_font")
-theme_override_font_sizes/font_size = 11
-text = "ESTIMACIÓN: 100% [INICIO]"
-
-[node name="OddsBar" type="ProgressBar" parent="UILayer/Margin/Layout/RightSideArea/OraclePanel/Margin/VBox"]
-custom_minimum_size = Vector2(0, 10)
-layout_mode = 2
-max_value = 100.0
-value = 100.0
-show_percentage = false
-
-[node name="OddsDetails" type="Label" parent="UILayer/Margin/Layout/RightSideArea/OraclePanel/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.8, 0.9, 1)
-theme_override_font_sizes/font_size = 11
-text = "Tus dados: 0 | Rival est.: ~0.0 | Total: ~0.0"
-
 [node name="ConsumablesPanel" type="PanelContainer" parent="UILayer/Margin/Layout/RightSideArea"]
 layout_mode = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
@@ -473,17 +468,17 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 [node name="Margin" type="MarginContainer" parent="UILayer/Margin/Layout/RightSideArea/ConsumablesPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 8
+theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_bottom = 10
 
 [node name="VBox" type="VBoxContainer" parent="UILayer/Margin/Layout/RightSideArea/ConsumablesPanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 8
 
 [node name="ConsumableTitle" type="Label" parent="UILayer/Margin/Layout/RightSideArea/ConsumablesPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.8, 0.5, 1)
+theme_override_colors/font_color = Color(0.95, 0.85, 0.45, 1)
 theme_override_fonts/font = ExtResource("2_pixel_font")
 theme_override_font_sizes/font_size = 9
 text = "🧪 TRUCOS DE MANGA (1 USO)"
@@ -493,7 +488,7 @@ layout_mode = 2
 theme_override_constants/separation = 8
 
 [node name="Slot1Btn" type="Button" parent="UILayer/Margin/Layout/RightSideArea/ConsumablesPanel/Margin/VBox/SlotsHBox"]
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/normal = SubResource("StyleBoxFlat_slot")
@@ -501,12 +496,19 @@ theme_override_font_sizes/font_size = 11
 text = "[ Vacío ]"
 
 [node name="Slot2Btn" type="Button" parent="UILayer/Margin/Layout/RightSideArea/ConsumablesPanel/Margin/VBox/SlotsHBox"]
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(0, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_styles/normal = SubResource("StyleBoxFlat_slot")
 theme_override_font_sizes/font_size = 11
 text = "[ Vacío ]"
+
+[node name="ConsumableDesc" type="Label" parent="UILayer/Margin/Layout/RightSideArea/ConsumablesPanel/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.82, 0.90, 1)
+theme_override_font_sizes/font_size = 11
+text = "Haz clic en un truco durante tu turno para activarlo."
+autowrap_mode = 2
 
 [node name="LogPanel" type="PanelContainer" parent="UILayer/Margin/Layout/RightSideArea"]
 layout_mode = 2
@@ -529,7 +531,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.75, 0.45, 1)
 theme_override_fonts/font = ExtResource("2_pixel_font")
 theme_override_font_sizes/font_size = 9
-text = "CRÓNICA DE JUGADAS"
+text = "HISTORIAL DE MESA"
 
 [node name="GameLog" type="RichTextLabel" parent="UILayer/Margin/Layout/RightSideArea/LogPanel/Margin/VBox"]
 layout_mode = 2
@@ -590,22 +592,22 @@ theme_override_constants/separation = 8
 [node name="BtnBuyLoaded" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
-text = "🎲 Dado Cargado (Tira 2 veces, guarda el mayor) — 5 🪙"
+text = "🎲 Dado Cargado (80% prob. cara 6) — 5 🪙"
 
 [node name="BtnBuyWildcard" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
-text = "⭐ Dado Comodín (Cuenta para cualquier cara) — 8 🪙"
+text = "⭐ Dado Comodín (Cuenta para toda cara) — 8 🪙"
 
 [node name="BtnBuyCrystal" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
-text = "💎 Dado de Cristal (Visible, pero da +3 oro por victoria) — 6 🪙"
+text = "💎 Dado de Cristal (2x daño, se rompe al fallar farol) — 6 🪙"
 
 [node name="BtnBuyVampiric" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
-text = "🩸 Dado Vampírico (Si puntúa al ganar, cura 1 dado) — 7 🪙"
+text = "🩸 Dado Vampírico (Roba 1 dado al rival al cantar Dudo) — 7 🪙"
 
 [node name="BtnBuyTrick" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
 custom_minimum_size = Vector2(0, 36)

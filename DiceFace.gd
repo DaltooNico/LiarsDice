@@ -199,6 +199,8 @@ func _draw_type_indicator() -> void:
 
 ## Animación de bote al rodar dados con pequeño retardo
 func play_roll_anim(delay: float = 0.0) -> void:
+	if not is_inside_tree():
+		return
 	scale = Vector2.ZERO
 	rotation = randf_range(-0.3, 0.3)
 	var t := create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
@@ -209,6 +211,9 @@ func play_roll_anim(delay: float = 0.0) -> void:
 
 ## Volteo tipo 3D de dorso a cara con efecto stagger
 func play_reveal_anim(delay: float = 0.0) -> void:
+	if not is_inside_tree():
+		face_down = false
+		return
 	var t := create_tween()
 	if delay > 0.0:
 		t.tween_interval(delay)
@@ -221,6 +226,9 @@ func play_reveal_anim(delay: float = 0.0) -> void:
 ## Animación de rotura de dado de cristal
 func play_shatter_anim() -> void:
 	is_loser = true
+	if not is_inside_tree():
+		queue_free()
+		return
 	var t := create_tween().set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_IN)
 	t.parallel().tween_property(self, "modulate", Color(1.5, 0.4, 0.4, 0.0), 0.3)
 	t.parallel().tween_property(self, "scale", Vector2(1.5, 1.5), 0.3)
@@ -230,6 +238,9 @@ func play_shatter_anim() -> void:
 ## Animación cuando el dado es eliminado de la mesa
 func play_vanish_anim() -> void:
 	is_loser = true
+	if not is_inside_tree():
+		queue_free()
+		return
 	var t := create_tween().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_IN)
 	t.parallel().tween_property(self, "scale", Vector2(0.0, 0.0), 0.35)
 	t.parallel().tween_property(self, "modulate:a", 0.0, 0.35)

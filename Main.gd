@@ -16,7 +16,7 @@ const ENCOUNTERS = [
 		"dice_count": 4,
 		"reward": 5,
 		"is_boss": false,
-		"desc": "Juega sobre seguro. Canta Dudo si la apuesta parece matemáticamente improbable."
+		"desc": "Juega sobre seguro. Canta Dudo si la apuesta parece improbable."
 	},
 	{
 		"name": "Vargas 'El Sabueso'",
@@ -88,7 +88,6 @@ var _log_buffer: String = ""
 # ── Referencias UI ─────────────────────────────────────────────────────────────
 @onready var stage_label     : Label         = $UILayer/Margin/Layout/LeftPlayArea/TopBar/StagePanel/Margin/StageLabel
 @onready var gold_label      : Label         = $UILayer/Margin/Layout/LeftPlayArea/TopBar/GoldLabel
-@onready var relics_label    : Label         = $UILayer/Margin/Layout/LeftPlayArea/TopBar/RelicsLabel
 
 @onready var enemy_title     : Label         = $UILayer/Margin/Layout/LeftPlayArea/EnemyPanel/Margin/VBox/Header/EnemyTitle
 @onready var enemy_count_lbl : Label         = $UILayer/Margin/Layout/LeftPlayArea/EnemyPanel/Margin/VBox/Header/EnemyCount
@@ -107,17 +106,19 @@ var _log_buffer: String = ""
 @onready var btn_dudo        : Button        = $UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/BtnDudo
 @onready var btn_action      : Button        = $UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/BtnAction
 
-# ── Panel Lateral Derecho (Panel Táctico) ──────────────────────────────────────
+# ── Reliquias en la parte inferior ─────────────────────────────────────────────
+@onready var relics_container  : HBoxContainer = $UILayer/Margin/Layout/LeftPlayArea/RelicsPanel/Margin/VBox/RelicsContainer
+@onready var relic_hover_desc  : Label         = $UILayer/Margin/Layout/LeftPlayArea/RelicsPanel/Margin/VBox/RelicsHeader/RelicHoverDesc
+@onready var empty_relics_label: Label         = $UILayer/Margin/Layout/LeftPlayArea/RelicsPanel/Margin/VBox/RelicsContainer/EmptyRelicsLabel
+
+# ── Panel Lateral Derecho (Personaje y Trucos) ─────────────────────────────────
 @onready var rival_avatar    : Label         = $UILayer/Margin/Layout/RightSideArea/RivalBox/Margin/VBox/Header/RivalAvatar
 @onready var rival_mood      : Label         = $UILayer/Margin/Layout/RightSideArea/RivalBox/Margin/VBox/Header/RivalMood
 @onready var rival_speech    : Label         = $UILayer/Margin/Layout/RightSideArea/RivalBox/Margin/VBox/RivalSpeech
 
-@onready var odds_label      : Label         = $UILayer/Margin/Layout/RightSideArea/OraclePanel/Margin/VBox/OddsLabel
-@onready var odds_bar        : ProgressBar   = $UILayer/Margin/Layout/RightSideArea/OraclePanel/Margin/VBox/OddsBar
-@onready var odds_details    : Label         = $UILayer/Margin/Layout/RightSideArea/OraclePanel/Margin/VBox/OddsDetails
-
 @onready var slot1_btn       : Button        = $UILayer/Margin/Layout/RightSideArea/ConsumablesPanel/Margin/VBox/SlotsHBox/Slot1Btn
 @onready var slot2_btn       : Button        = $UILayer/Margin/Layout/RightSideArea/ConsumablesPanel/Margin/VBox/SlotsHBox/Slot2Btn
+@onready var consumable_desc : Label         = $UILayer/Margin/Layout/RightSideArea/ConsumablesPanel/Margin/VBox/ConsumableDesc
 @onready var game_log        : RichTextLabel = $UILayer/Margin/Layout/RightSideArea/LogPanel/Margin/VBox/GameLog
 
 # ── Tienda ─────────────────────────────────────────────────────────────────────
@@ -126,13 +127,7 @@ var _log_buffer: String = ""
 @onready var btn_next_match       : Button         = $UILayer/ShopOverlay/Margin/VBox/BtnNextMatch
 
 func _ready() -> void:
-	spin_quantity.value_changed.connect(_on_bet_inputs_changed)
-	spin_face.value_changed.connect(_on_bet_inputs_changed)
 	start_new_run()
-
-func _on_bet_inputs_changed(_val: float) -> void:
-	if state == State.BETTING and is_player_turn and not is_thinking:
-		_update_oracle_preview(int(spin_quantity.value), int(spin_face.value))
 
 # ── Sistema de Log enriquecido con BBCode ──────────────────────────────────────
 
@@ -153,7 +148,7 @@ func start_new_run() -> void:
 	relic_manager = RelicManager.new()
 	player_consumables.clear()
 	
-	# Consumible inicial de regalo
+	# Consumible inicial de regalo: Giro de Dado
 	player_consumables.append(ConsumableClass.new("die_flip", "Giro de Dado", "Voltea 1 de tus dados a su cara opuesta (1↔6, 2↔5, 3↔4).", 5, "🔄"))
 
 	# Cubilete inicial: 5 dados normales
@@ -161,7 +156,7 @@ func start_new_run() -> void:
 	
 	_clear_log()
 	log_msg("[b][color=#f5d76e]═══ INICIO DE RUN — ANTE %d ═══[/color][/b]" % current_ante)
-	log_msg("[color=#aaaaaa]Vence a 3 rivales y al Jefe de la mesa para completar el Ante.[/color]")
+	log_msg("[color=#aaaaaa]Supera a 3 rivales y al Jefe de la mesa para completar el Ante.[/color]")
 	
 	start_encounter(encounter_index)
 
@@ -179,7 +174,7 @@ func start_encounter(idx: int) -> void:
 	enemy_dice.clear()
 	var rival_count: int = enc.dice_count
 	if enc.is_boss:
-		enemy_dice.append(Die.new(Die.Type.WILDCARD)) # Dado comodín tramposo
+		enemy_dice.append(Die.new(Die.Type.WILDCARD)) # Dado comodín tramposo del jefe
 		for _i in range(rival_count - 1):
 			enemy_dice.append(Die.new())
 	else:
@@ -191,6 +186,7 @@ func start_encounter(idx: int) -> void:
 
 	_update_top_bar()
 	_update_consumables_ui()
+	_update_relics_ui()
 	_set_rival_speech("«Ocupa tu silla, tahúr. No saldrás con mis monedas.»", "[ Listo ]")
 
 	log_msg("\n[b][color=#63b3ed]─── Encuentro %d/4: %s ───[/color][/b]" % [idx + 1, enc.title])
@@ -219,7 +215,7 @@ func start_round() -> void:
 	_reset_spinboxes_for_turn()
 	_update_top_bar()
 	_update_consumables_ui()
-	_update_oracle_display()
+	_update_relics_ui()
 
 	log_msg("[color=#70c080]🎲 Mano lanzada. Tienes %d dados | Rival: %d dados.[/color]" % [player_dice.size(), enemy_dice.size()])
 
@@ -227,7 +223,7 @@ func start_round() -> void:
 	if relic_manager.has_relic("xray_monocle") and not enemy_dice_views.is_empty():
 		var secret_idx: int = randi() % enemy_dice_views.size()
 		enemy_dice_views[secret_idx].face_down = false
-		log_msg("[color=#63b3ed]🧐 [Monóculo de Rayos X] Puedes espiar que el rival tiene un dado con cara %d.[/color]" % enemy_dice[secret_idx].face)
+		log_msg("[color=#63b3ed]🧐 [Monóculo de Rayos X] Espías un dado rival: cara %d.[/color]" % enemy_dice[secret_idx].face)
 
 	_set_rival_speech("«Haz tu primera apuesta. Veamos de qué pasta estás hecho.»", "[ Esperando ]")
 
@@ -272,77 +268,62 @@ func _render_dice_views() -> void:
 	player_count_lbl.text = "%d dados" % player_dice.size()
 	enemy_count_lbl.text  = "%d dados" % enemy_dice.size()
 
-# ── Oráculo Táctico de Probabilidad (Estadística Binomial) ──────────────────────
+# ── Panel de Reliquias Inferior con Hover Tooltip ──────────────────────────────
 
-func _update_oracle_display() -> void:
-	if current_bet.quantity == 0:
-		odds_label.text = "ESTIMACIÓN: — [INICIO]"
-		odds_label.modulate = Color(0.6, 0.8, 1.0)
-		odds_bar.value = 100.0
-		odds_details.text = "Haz la primera apuesta de la mano"
-	else:
-		_calculate_and_render_odds(current_bet.quantity, current_bet.face)
+func _update_relics_ui() -> void:
+	# Limpiar slots antiguos
+	for child in relics_container.get_children():
+		if child != empty_relics_label:
+			child.queue_free()
 
-func _update_oracle_preview(q: int, f: int) -> void:
-	_calculate_and_render_odds(q, f)
+	if relic_manager == null or relic_manager.active_relics.is_empty():
+		empty_relics_label.visible = true
+		relic_hover_desc.text = "Pasa el ratón sobre una reliquia para leer su poder."
+		return
 
-func _calculate_and_render_odds(q: int, f: int) -> void:
-	var is_joker: bool = (f == JOKER_FACE)
-	
-	var my_matches: int = 0
-	for d: Die in player_dice:
-		if d.counts_as(f, is_joker):
-			my_matches += 1
+	empty_relics_label.visible = false
 
-	var unseen_dice: int = enemy_dice.size()
-	var needed: int = q - my_matches
-	
-	var p: float = (1.0 / 6.0) if is_joker else (2.0 / 6.0)
-	var expected_rival: float = float(unseen_dice) * p
-	var total_expected: float = float(my_matches) + expected_rival
+	for r in relic_manager.active_relics:
+		var badge := Button.new()
+		badge.text = "%s %s" % [r.icon_symbol, r.name]
+		badge.custom_minimum_size = Vector2(0, 30)
+		badge.add_theme_font_size_override("font_size", 11)
+		badge.tooltip_text = "%s %s\n%s" % [r.icon_symbol, r.name, r.description]
+		
+		# Conectar eventos de ratón para mostrar descripción dinámica abajo
+		var desc_text: String = "%s %s: %s" % [r.icon_symbol, r.name, r.description]
+		badge.mouse_entered.connect(func() -> void:
+			relic_hover_desc.text = desc_text
+			relic_hover_desc.modulate = Color(1.0, 0.9, 0.3)
+		)
+		badge.mouse_exited.connect(func() -> void:
+			relic_hover_desc.text = "Pasa el ratón sobre una reliquia para leer su poder."
+			relic_hover_desc.modulate = Color(0.85, 0.90, 0.95)
+		)
 
-	var prob_percent: float = 0.0
-	if needed <= 0:
-		prob_percent = 100.0
-	elif needed > unseen_dice:
-		prob_percent = 0.0
-	else:
-		prob_percent = _binomial_at_least(unseen_dice, needed, p) * 100.0
+		# Si es el Espejo Oculto, hacer clic en el botón permite usar el reroll secreto
+		if r.id == "hidden_mirror":
+			badge.text += " (Click Reroll)"
+			badge.pressed.connect(_on_use_hidden_mirror)
 
-	odds_bar.value = prob_percent
-	
-	var tag: String
-	var tag_color: Color
-	if prob_percent >= 70.0:
-		tag = "[ FAVORABLE ]"
-		tag_color = Color(0.3, 0.9, 0.4)
-	elif prob_percent >= 40.0:
-		tag = "[ ARRIESGADA ]"
-		tag_color = Color(0.95, 0.8, 0.2)
-	elif prob_percent >= 15.0:
-		tag = "[ FAROL FUERTE ]"
-		tag_color = Color(0.95, 0.5, 0.2)
-	else:
-		tag = "[ FAROL EXTREMO ]"
-		tag_color = Color(0.95, 0.25, 0.25)
+		relics_container.add_child(badge)
 
-	odds_label.text = "PROBABILIDAD: %d%% %s" % [int(prob_percent), tag]
-	odds_label.modulate = tag_color
-	odds_details.text = "Tus dados: %d | Rival est.: ~%.1f | Total est.: ~%.1f" % [my_matches, expected_rival, total_expected]
+func _on_use_hidden_mirror() -> void:
+	if state != State.BETTING or not is_player_turn or is_thinking:
+		return
+	if used_mirror_this_round:
+		log_msg("[color=#fc8181]🪞 Ya usaste el Espejo Oculto en esta mano.[/color]")
+		return
 
-func _binomial_at_least(n: int, k: int, p: float) -> float:
-	var total_p: float = 0.0
-	for i in range(k, n + 1):
-		total_p += _comb(n, i) * pow(p, float(i)) * pow(1.0 - p, float(n - i))
-	return clampf(total_p, 0.0, 1.0)
-
-func _comb(n: int, k: int) -> float:
-	if k < 0 or k > n: return 0.0
-	if k == 0 or k == n: return 1.0
-	var res: float = 1.0
-	for i in range(1, k + 1):
-		res = res * float(n - (k - i)) / float(i)
-	return res
+	used_mirror_this_round = true
+	if not player_dice.is_empty():
+		var picked: Die = player_dice.pick_random()
+		var old_v: int = picked.face
+		picked.roll()
+		_sort_dice(player_dice)
+		_render_dice_views()
+		log_msg("[color=#63b3ed]🪞 [Espejo Oculto] Relanzaste en secreto 1 dado: era %d, ahora es %d.[/color]" % [old_v, picked.face])
+		_set_rival_speech("«Oigo un ruido de dados bajo tu cubilete... sospechoso...»", "[ Desconfiado ]")
 
 # ── Diálogos Dinámicos del Rival ───────────────────────────────────────────────
 
@@ -356,14 +337,6 @@ func _update_top_bar() -> void:
 	var enc: Dictionary = ENCOUNTERS[encounter_index]
 	stage_label.text = "ANTE %d [%d/4%s]" % [current_ante, encounter_index + 1, " 👑" if enc.is_boss else ""]
 	gold_label.text = "$ %d" % player_gold
-	
-	if relic_manager == null or relic_manager.active_relics.is_empty():
-		relics_label.text = "Reliquias: (ninguna)"
-	else:
-		var icons: Array[String] = []
-		for r in relic_manager.active_relics:
-			icons.append(r.icon_symbol + " " + r.name)
-		relics_label.text = "Reliquias: " + ", ".join(icons)
 
 func _update_bet_display() -> void:
 	if current_bet.quantity == 0:
@@ -382,7 +355,7 @@ func _update_bet_display() -> void:
 			turn_status_lbl.text = "¡Es tu turno! Sube la apuesta o canta DUDO"
 			turn_status_lbl.modulate = Color(0.6, 0.9, 0.6)
 		else:
-			turn_status_lbl.text = "Turno del rival... calculando"
+			turn_status_lbl.text = "Turno del rival... evaluando"
 			turn_status_lbl.modulate = Color(0.9, 0.7, 0.5)
 
 func _reset_spinboxes_for_turn() -> void:
@@ -459,13 +432,12 @@ func _on_btn_bet_pressed() -> void:
 		is_player_turn = false
 		_set_state(State.BETTING)
 		_update_bet_display()
-		_update_oracle_display()
 
 		var f_str: String = FACE_SYMBOLS[face]
 		log_msg("👤 [b]Apuestas:[/b] [color=#9ae6b4]%d al %s[/color]" % [quantity, f_str])
 		
 		if is_ordago_active:
-			_set_rival_speech("«¡¿UN ÓRDAGO?! ¡Me obligas a jugármela toda a Dudo!»", "[ ¡AL LÍMITE! ]")
+			_set_rival_speech("«¡¿UN ÓRDAGO?! ¡Me obligas a jugármela a DUDO!»", "[ ¡AL LÍMITE! ]")
 		elif quantity >= player_dice.size() + 2:
 			_set_rival_speech("«¿%d dados? Me parece que estás apostando humo...»" % quantity, "[ Sospecha ]")
 		else:
@@ -497,7 +469,7 @@ func _on_btn_action_pressed() -> void:
 func _start_enemy_turn_with_delay() -> void:
 	is_thinking = true
 	_set_state(State.BETTING)
-	_set_rival_speech("«Mmm... calculando las probabilidades de la mesa...»", "[ Calculando ]")
+	_set_rival_speech("«Mmm... calculando cuántos dados hay en la mesa...»", "[ Pensando ]")
 
 	if is_inside_tree():
 		var timer := get_tree().create_timer(1.2)
@@ -536,7 +508,6 @@ func _process_enemy_turn() -> void:
 		_set_state(State.BETTING)
 		_update_bet_display()
 		_reset_spinboxes_for_turn()
-		_update_oracle_display()
 
 		var f_str: String = FACE_SYMBOLS[f]
 		if min_step >= 2:
@@ -583,7 +554,7 @@ func resolve_dudo(player_called: bool) -> void:
 	var final_count: int = physical_count
 
 	log_msg("───────────────────────────────────────")
-	log_msg("🔍 [b]Mesa:[/b] %d dados de cara %s (Apuesta: %d)." % [final_count, f_str, bet_quantity])
+	log_msg("🔍 [b]Resultado en la Mesa:[/b] %d dados de cara %s (Apuesta: %d)." % [final_count, f_str, bet_quantity])
 
 	var bet_was_true: bool = (final_count >= bet_quantity)
 	var player_loses: bool
@@ -594,10 +565,10 @@ func resolve_dudo(player_called: bool) -> void:
 			_set_rival_speech("«¡Jajaja! ¡Te dije que no mentía! Pierdes un dado.»", "[ Victorioso ]")
 			log_msg("[color=#fc8181]❌ La apuesta del rival era cierta. ¡Tu duda falló![/color]")
 		else:
-			_set_rival_speech("«¡Maldita sea! ¿Cómo supiste que estaba mintiendo...?»", "[ Derrotado ]")
+			_set_rival_speech("«¡Maldición! ¿Cómo supiste que estaba mintiendo...?»", "[ Derrotado ]")
 			log_msg("[color=#68d391]🎯 ¡Cazaste el farol del rival con éxito![/color]")
 			
-			# Dado Vampírico: si aciertas al cantar Dudo, robas permanentemente un dado rival
+			# Dado Vampírico: roba 1 dado al rival al cantar Dudo con éxito
 			var has_vampiric: bool = false
 			for d: Die in player_dice:
 				if d.type == Die.Type.VAMPIRIC:
@@ -619,7 +590,7 @@ func resolve_dudo(player_called: bool) -> void:
 			log_msg("[color=#68d391]🎯 ¡Tu apuesta era legítima! El rival dudó equivocadamente.[/color]")
 			player_gold += 2
 
-	# Reliquia: Póliza de Seguro (si pierdes un dado, recibes +5 oro para la tienda)
+	# Reliquia: Póliza de Seguro (si pierdes un dado, recibes +5 🪙 para la tienda)
 	if player_loses and relic_manager.has_relic("insurance_policy"):
 		player_gold += 5
 		log_msg("[color=#f6e05e]📜 [Póliza de Seguro] Cobras +5 🪙 de compensación por perder un dado.[/color]")
@@ -645,7 +616,7 @@ func resolve_dudo(player_called: bool) -> void:
 	var enc: Dictionary = ENCOUNTERS[encounter_index]
 	var damage_dealt: int = 1
 
-	# Dado de Cristal: Duplica el daño infligido al rival al ganar
+	# Dado de Cristal: Duplica el daño infligido al rival al ganar (pierde 2 dados)
 	if not player_loses:
 		for d: Die in player_dice:
 			if d.type == Die.Type.CRYSTAL:
@@ -727,17 +698,25 @@ func _update_consumables_ui() -> void:
 		var c1 = player_consumables[0]
 		slot1_btn.text = "%s %s" % [c1.icon_symbol, c1.name]
 		slot1_btn.disabled = false
+		slot1_btn.tooltip_text = "%s: %s" % [c1.name, c1.description]
+		slot1_btn.mouse_entered.connect(func(): consumable_desc.text = "%s: %s" % [c1.name, c1.description])
+		slot1_btn.mouse_exited.connect(func(): consumable_desc.text = "Haz clic en un truco durante tu turno para activarlo.")
 	else:
 		slot1_btn.text = "[ Vacío ]"
 		slot1_btn.disabled = true
+		slot1_btn.tooltip_text = ""
 
 	if player_consumables.size() > 1:
 		var c2 = player_consumables[1]
 		slot2_btn.text = "%s %s" % [c2.icon_symbol, c2.name]
 		slot2_btn.disabled = false
+		slot2_btn.tooltip_text = "%s: %s" % [c2.name, c2.description]
+		slot2_btn.mouse_entered.connect(func(): consumable_desc.text = "%s: %s" % [c2.name, c2.description])
+		slot2_btn.mouse_exited.connect(func(): consumable_desc.text = "Haz clic en un truco durante tu turno para activarlo.")
 	else:
 		slot2_btn.text = "[ Vacío ]"
 		slot2_btn.disabled = true
+		slot2_btn.tooltip_text = ""
 
 func _on_slot1_btn_pressed() -> void:
 	_use_consumable_at_index(0)
@@ -765,13 +744,12 @@ func _use_consumable_at_index(idx: int) -> void:
 			for i in range(enemy_dice.size()):
 				enemy_dice_views[i].face_value = enemy_dice[i].face
 				enemy_dice_views[i].play_roll_anim()
-			_set_rival_speech("«¡Argh! ¡Ese whisky estaba adulterado! Me has hecho trastabillar mis dados...»", "[ Mareado ]")
-			log_msg("[color=#b794f4]🥃 [Trago de Whisky] ¡El oponente ha re-tirado 2 de sus dados ocultos bajo el cubilete![/color]")
+			_set_rival_speech("«¡Argh! ¡Ese whisky estaba adulterado! Me has trastabillado los dados...»", "[ Mareado ]")
+			log_msg("[color=#b794f4]🥃 [Trago de Whisky] ¡El oponente re-tiró 2 dados ocultos![/color]")
 		
 		"die_flip":
 			# Giro de Dado: Cambia el valor de uno de tus dados al opuesto de su cara (1↔6, 2↔5, 3↔4)
 			if not player_dice.is_empty():
-				# Escoger el dado con menor cara para maximizar beneficio
 				var die_to_flip: Die = player_dice[0]
 				for d in player_dice:
 					if d.face < 4:
@@ -781,15 +759,14 @@ func _use_consumable_at_index(idx: int) -> void:
 				die_to_flip.flip_to_opposite()
 				_sort_dice(player_dice)
 				_render_dice_views()
-				_update_oracle_display()
-				log_msg("[color=#b794f4]🔄 [Giro de Dado] Volteaste un dado de cara %d a su opuesto: cara %d.[/color]" % [old_f, die_to_flip.face])
+				log_msg("[color=#b794f4]🔄 [Giro de Dado] Volteaste un dado de cara %d a cara %d.[/color]" % [old_f, die_to_flip.face])
 		
 		"all_in":
 			# Órdago / All-In: Obliga al rival a responder únicamente con Dudo
 			is_ordago_active = true
 			_update_bet_display()
 			_set_rival_speech("«¡¿UN ÓRDAGO?! ¡No puedo subir la apuesta! ¡Tengo que dudar o tragar!»", "[ ¡PRESIONADO! ]")
-			log_msg("[color=#f6e05e]⚡ [Órdago / All-In] Has declarado un ÓRDAGO. Tu próxima apuesta obligará al rival a cantar Dudo.[/color]")
+			log_msg("[color=#f6e05e]⚡ [Órdago / All-In] Has declarado un ÓRDAGO. Tu apuesta forzará al rival a cantar Dudo.[/color]")
 
 # ── Tienda de Victoria (Solo tras ganar el encuentro) ──────────────────────────
 
@@ -868,7 +845,7 @@ func _on_btn_buy_trick_pressed() -> void:
 	player_consumables.append(trick)
 	_update_top_bar()
 	_update_consumables_ui()
-	log_msg("[color=#b794f4]🧪 ¡Nueva trampa de manga adquirida: %s %s! %s[/color]" % [trick.icon_symbol, trick.name, trick.description])
+	log_msg("[color=#b794f4]🧪 ¡Nueva trampa de manga: %s %s! %s[/color]" % [trick.icon_symbol, trick.name, trick.description])
 
 func _on_btn_buy_relic_pressed() -> void:
 	if player_gold < 6:
@@ -889,6 +866,7 @@ func _on_btn_buy_relic_pressed() -> void:
 	player_gold -= 6
 	relic_manager.add_relic(chosen)
 	_update_top_bar()
+	_update_relics_ui()
 	log_msg("[color=#f6e05e]🏺 ¡Nueva Reliquia: [b]%s[/b]! %s[/color]" % [chosen.name, chosen.description])
 
 func _on_btn_recover_die_pressed() -> void:

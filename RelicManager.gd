@@ -17,7 +17,7 @@ static func get_all_available_relics() -> Array:
 		"Monóculo de Rayos X",
 		"Permite ver permanentemente 1 dado al azar del cubilete rival antes de empezar cada ronda.",
 		6,
-		"🧐"
+		"[X-RAY]"
 	))
 
 	# 2. Espejo Oculto
@@ -26,16 +26,16 @@ static func get_all_available_relics() -> Array:
 		"Espejo Oculto",
 		"Permite relanzar en secreto 1 de tus propios dados una vez por turno de apuestas.",
 		7,
-		"🪞"
+		"[ESPEJO]"
 	))
 
 	# 3. Póliza de Seguro
 	list.append(RelicClass.new(
 		"insurance_policy",
 		"Póliza de Seguro",
-		"Si pierdes un dado por fallar al cantar Dudo o que te cacen, recibes +5 🪙 para la tienda.",
+		"Si pierdes un dado por fallar al cantar Dudo o que te cacen, recibes +$5 para la tienda.",
 		5,
-		"📜"
+		"[SEGURO]"
 	))
 
 	# 4. Báscula Trucada
@@ -44,7 +44,7 @@ static func get_all_available_relics() -> Array:
 		"Báscula Trucada",
 		"Obliga a los rivales a incrementar la apuesta en al menos +2 dados en lugar de +1.",
 		8,
-		"⚖️"
+		"[BASCULA]"
 	))
 
 	return list

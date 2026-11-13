@@ -8,9 +8,9 @@ var id: String = "base_relic"
 var name: String = "Reliquia Base"
 var description: String = "Descripción de la reliquia"
 var cost: int = 5
-var icon_symbol: String = "🏺"
+var icon_symbol: String = "[RELIQUIA]"
 
-func _init(p_id: String = "", p_name: String = "", p_desc: String = "", p_cost: int = 5, p_icon: String = "🏺") -> void:
+func _init(p_id: String = "", p_name: String = "", p_desc: String = "", p_cost: int = 5, p_icon: String = "[RELIQUIA]") -> void:
 	if not p_id.is_empty():
 		id = p_id
 	if not p_name.is_empty():

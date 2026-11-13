@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://bcb0d2eb5949c"]
+[gd_scene load_steps=16 format=3 uid="uid://bcb0d2eb5949c"]
 
 [ext_resource type="Script" path="res://Main.gd" id="1_script"]
 [ext_resource type="FontFile" path="res://PressStart2P.ttf" id="2_pixel_font"]
@@ -118,6 +118,59 @@ corner_radius_top_left = 8
 corner_radius_top_right = 8
 corner_radius_bottom_left = 8
 corner_radius_bottom_right = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_arrow_btn"]
+bg_color = Color(0.12, 0.20, 0.16, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.35, 0.65, 0.45, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_left = 6
+corner_radius_bottom_right = 6
+shadow_color = Color(0, 0, 0, 0.3)
+shadow_size = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_arrow_btn_hover"]
+bg_color = Color(0.18, 0.32, 0.24, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.55, 0.90, 0.65, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_left = 6
+corner_radius_bottom_right = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_arrow_btn_pressed"]
+bg_color = Color(0.08, 0.14, 0.11, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.25, 0.50, 0.35, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_left = 6
+corner_radius_bottom_right = 6
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_number_display"]
+bg_color = Color(0.04, 0.08, 0.06, 0.98)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.22, 0.38, 0.28, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_left = 8
+corner_radius_bottom_right = 8
+shadow_color = Color(0, 0, 0, 0.5)
+shadow_size = 3
+shadow_offset = Vector2(0, 2)
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_script")
@@ -308,68 +361,170 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="Margin" type="MarginContainer" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 12
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 12
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
 
 [node name="ControlsHBox" type="HBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin"]
 layout_mode = 2
 alignment = 1
-theme_override_constants/separation = 12
+theme_override_constants/separation = 16
 
-[node name="LabelQ" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
+[node name="QtyGroup" type="VBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 4
+
+[node name="QtyTitle" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/QtyGroup"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.82, 0.35, 1)
+theme_override_fonts/font = ExtResource("2_pixel_font")
+theme_override_font_sizes/font_size = 9
+text = "CANTIDAD"
+horizontal_alignment = 1
+
+[node name="QtyHBox" type="HBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/QtyGroup"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="BtnQtyDown" type="Button" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/QtyGroup/QtyHBox"]
+custom_minimum_size = Vector2(48, 54)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_pixel_font")
-theme_override_font_sizes/font_size = 10
-text = "CANT:"
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_arrow_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_arrow_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_arrow_btn_pressed")
+text = "◀"
+
+[node name="QtyDisplay" type="PanelContainer" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/QtyGroup/QtyHBox"]
+custom_minimum_size = Vector2(76, 54)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_number_display")
+
+[node name="Margin" type="MarginContainer" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/QtyGroup/QtyHBox/QtyDisplay"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 2
+
+[node name="QtyValueLabel" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/QtyGroup/QtyHBox/QtyDisplay/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("2_pixel_font")
+theme_override_font_sizes/font_size = 28
+text = "1"
+horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="QuantitySpinBox" type="SpinBox" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
-custom_minimum_size = Vector2(70, 36)
-layout_mode = 2
-min_value = 1.0
-max_value = 25.0
-value = 1.0
-alignment = 1
-
-[node name="LabelF" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
+[node name="BtnQtyUp" type="Button" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/QtyGroup/QtyHBox"]
+custom_minimum_size = Vector2(48, 54)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_pixel_font")
-theme_override_font_sizes/font_size = 10
-text = "CARA:"
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_arrow_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_arrow_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_arrow_btn_pressed")
+text = "▶"
+
+[node name="FaceGroup" type="VBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 4
+
+[node name="FaceTitle" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/FaceGroup"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.82, 0.35, 1)
+theme_override_fonts/font = ExtResource("2_pixel_font")
+theme_override_font_sizes/font_size = 9
+text = "CARA"
+horizontal_alignment = 1
+
+[node name="FaceHBox" type="HBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/FaceGroup"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 6
+
+[node name="BtnFaceDown" type="Button" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/FaceGroup/FaceHBox"]
+custom_minimum_size = Vector2(48, 54)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_pixel_font")
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_arrow_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_arrow_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_arrow_btn_pressed")
+text = "◀"
+
+[node name="FaceDisplay" type="PanelContainer" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/FaceGroup/FaceHBox"]
+custom_minimum_size = Vector2(76, 54)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_number_display")
+
+[node name="Margin" type="MarginContainer" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/FaceGroup/FaceHBox/FaceDisplay"]
+layout_mode = 2
+theme_override_constants/margin_left = 4
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 4
+theme_override_constants/margin_bottom = 2
+
+[node name="FaceValueLabel" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/FaceGroup/FaceHBox/FaceDisplay/Margin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(1, 0.95, 0.45, 1)
+theme_override_fonts/font = ExtResource("2_pixel_font")
+theme_override_font_sizes/font_size = 28
+text = "2"
+horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="FaceSpinBox" type="SpinBox" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
-custom_minimum_size = Vector2(70, 36)
-layout_mode = 2
-min_value = 1.0
-max_value = 6.0
-value = 2.0
-alignment = 1
-
-[node name="BtnBet" type="Button" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
-custom_minimum_size = Vector2(110, 40)
+[node name="BtnFaceUp" type="Button" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/FaceGroup/FaceHBox"]
+custom_minimum_size = Vector2(48, 54)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_pixel_font")
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 20
+theme_override_styles/normal = SubResource("StyleBoxFlat_arrow_btn")
+theme_override_styles/hover = SubResource("StyleBoxFlat_arrow_btn_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_arrow_btn_pressed")
+text = "▶"
+
+[node name="ActionsVBox" type="VBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 4
+
+[node name="ButtonsRow" type="HBoxContainer" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/ActionsVBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 8
+
+[node name="BtnBet" type="Button" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/ActionsVBox/ButtonsRow"]
+custom_minimum_size = Vector2(130, 54)
+layout_mode = 2
+theme_override_fonts/font = ExtResource("2_pixel_font")
+theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_bet")
 text = "APOSTAR"
 
-[node name="BtnDudo" type="Button" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
-custom_minimum_size = Vector2(100, 40)
+[node name="BtnDudo" type="Button" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/ActionsVBox/ButtonsRow"]
+custom_minimum_size = Vector2(110, 54)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_pixel_font")
-theme_override_font_sizes/font_size = 11
+theme_override_font_sizes/font_size = 12
 theme_override_styles/normal = SubResource("StyleBoxFlat_btn_dudo")
 text = "¡DUDO!"
 
-[node name="BtnAction" type="Button" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox"]
+[node name="BtnAction" type="Button" parent="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/ActionsVBox"]
 visible = false
-custom_minimum_size = Vector2(140, 40)
+custom_minimum_size = Vector2(248, 54)
 layout_mode = 2
 theme_override_fonts/font = ExtResource("2_pixel_font")
-theme_override_font_sizes/font_size = 10
+theme_override_font_sizes/font_size = 11
 text = "Siguiente Mano"
 
 [node name="RelicsPanel" type="PanelContainer" parent="UILayer/Margin/Layout/LeftPlayArea"]
@@ -395,7 +550,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.85, 0.4, 1)
 theme_override_fonts/font = ExtResource("2_pixel_font")
 theme_override_font_sizes/font_size = 9
-text = "🏺 RELIQUIAS PASIVAS:"
+text = "RELIQUIAS PASIVAS:"
 
 [node name="RelicHoverDesc" type="Label" parent="UILayer/Margin/Layout/LeftPlayArea/RelicsPanel/Margin/VBox/RelicsHeader"]
 layout_mode = 2
@@ -446,7 +601,7 @@ size_flags_horizontal = 3
 theme_override_colors/font_color = Color(0.9, 0.8, 0.4, 1)
 theme_override_fonts/font = ExtResource("2_pixel_font")
 theme_override_font_sizes/font_size = 11
-text = "👤 JACK"
+text = "JACK"
 
 [node name="RivalMood" type="Label" parent="UILayer/Margin/Layout/RightSideArea/RivalBox/Margin/VBox/Header"]
 layout_mode = 2
@@ -481,7 +636,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.85, 0.45, 1)
 theme_override_fonts/font = ExtResource("2_pixel_font")
 theme_override_font_sizes/font_size = 9
-text = "🧪 TRUCOS DE MANGA (1 USO)"
+text = "TRUCOS DE MANGA (1 USO)"
 
 [node name="SlotsHBox" type="HBoxContainer" parent="UILayer/Margin/Layout/RightSideArea/ConsumablesPanel/Margin/VBox"]
 layout_mode = 2
@@ -571,7 +726,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.85, 0.35, 1)
 theme_override_fonts/font = ExtResource("2_pixel_font")
 theme_override_font_sizes/font_size = 16
-text = "🏪 MERCADO TRAS LA VICTORIA"
+text = "MERCADO TRAS LA VICTORIA"
 horizontal_alignment = 1
 
 [node name="ShopSubtitle" type="Label" parent="UILayer/ShopOverlay/Margin/VBox"]
@@ -592,37 +747,37 @@ theme_override_constants/separation = 8
 [node name="BtnBuyLoaded" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
-text = "🎲 Dado Cargado (80% prob. cara 6) — 5 🪙"
+text = "[CARGADO] Dado Cargado (80% prob. cara 6) — $5"
 
 [node name="BtnBuyWildcard" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
-text = "⭐ Dado Comodín (Cuenta para toda cara) — 8 🪙"
+text = "[COMODIN] Dado Comodin (Cuenta para toda cara) — $8"
 
 [node name="BtnBuyCrystal" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
-text = "💎 Dado de Cristal (2x daño, se rompe al fallar farol) — 6 🪙"
+text = "[CRISTAL] Dado de Cristal (2x dano, rompe si fallas) — $6"
 
 [node name="BtnBuyVampiric" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
-text = "🩸 Dado Vampírico (Roba 1 dado al rival al cantar Dudo) — 7 🪙"
+text = "[VAMPIRICO] Dado Vampirico (Roba 1 dado al cantar Dudo) — $7"
 
 [node name="BtnBuyTrick" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
-text = "🧪 Sobre de Truco (Consumible sorpresa de manga) — 4 🪙"
+text = "[TRUCO] Sobre de Truco Sorpresa de Manga — $4"
 
 [node name="BtnBuyRelic" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
-text = "🏺 Reliquia Misteriosa (Poder pasivo permanente) — 6 🪙"
+text = "[RELIQUIA] Reliquia Misteriosa Pasiva — $6"
 
 [node name="BtnRecoverDie" type="Button" parent="UILayer/ShopOverlay/Margin/VBox/ShopItemsList"]
 custom_minimum_size = Vector2(0, 36)
 layout_mode = 2
-text = "➕ Recuperar 1 Dado Perdido para tu cubilete — 4 🪙"
+text = "[+1 DADO] Recuperar 1 Dado Perdido — $4"
 
 [node name="NextEncounterLabel" type="Label" parent="UILayer/ShopOverlay/Margin/VBox"]
 layout_mode = 2
@@ -638,11 +793,15 @@ layout_mode = 2
 size_flags_horizontal = 4
 theme_override_fonts/font = ExtResource("2_pixel_font")
 theme_override_font_sizes/font_size = 12
-text = "Siguiente Rival ➡️"
+text = "Siguiente Rival >"
 
-[connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/BtnBet" to="." method="_on_btn_bet_pressed"]
-[connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/BtnDudo" to="." method="_on_btn_dudo_pressed"]
-[connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/BtnAction" to="." method="_on_btn_action_pressed"]
+[connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/QtyGroup/QtyHBox/BtnQtyDown" to="." method="_on_btn_qty_down_pressed"]
+[connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/QtyGroup/QtyHBox/BtnQtyUp" to="." method="_on_btn_qty_up_pressed"]
+[connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/FaceGroup/FaceHBox/BtnFaceDown" to="." method="_on_btn_face_down_pressed"]
+[connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/FaceGroup/FaceHBox/BtnFaceUp" to="." method="_on_btn_face_up_pressed"]
+[connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/ActionsVBox/ButtonsRow/BtnBet" to="." method="_on_btn_bet_pressed"]
+[connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/ActionsVBox/ButtonsRow/BtnDudo" to="." method="_on_btn_dudo_pressed"]
+[connection signal="pressed" from="UILayer/Margin/Layout/LeftPlayArea/ControlsPanel/Margin/ControlsHBox/ActionsVBox/BtnAction" to="." method="_on_btn_action_pressed"]
 [connection signal="pressed" from="UILayer/Margin/Layout/RightSideArea/ConsumablesPanel/Margin/VBox/SlotsHBox/Slot1Btn" to="." method="_on_slot1_btn_pressed"]
 [connection signal="pressed" from="UILayer/Margin/Layout/RightSideArea/ConsumablesPanel/Margin/VBox/SlotsHBox/Slot2Btn" to="." method="_on_slot2_btn_pressed"]
 [connection signal="pressed" from="UILayer/ShopOverlay/Margin/VBox/ShopItemsList/BtnBuyLoaded" to="." method="_on_btn_buy_loaded_pressed"]

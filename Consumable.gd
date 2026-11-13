@@ -9,9 +9,9 @@ var id: String = ""
 var name: String = ""
 var description: String = ""
 var cost: int = 4
-var icon_symbol: String = "🧪"
+var icon_symbol: String = "[TRUCO]"
 
-func _init(p_id: String = "", p_name: String = "", p_desc: String = "", p_cost: int = 4, p_icon: String = "🧪") -> void:
+func _init(p_id: String = "", p_name: String = "", p_desc: String = "", p_cost: int = 4, p_icon: String = "[TRUCO]") -> void:
 	id = p_id
 	name = p_name
 	description = p_desc
@@ -28,16 +28,16 @@ static func get_catalog() -> Array:
 		"Trago de Whisky",
 		"Fuerza al oponente a re-tirar inmediatamente 2 de sus dados ocultos.",
 		4,
-		"🥃"
+		"[WHISKY]"
 	))
 
 	# 2. Giro de Dado
 	list.append(SelfClass.new(
 		"die_flip",
 		"Giro de Dado",
-		"Voltea uno de tus dados a su cara geométrica opuesta (1↔6, 2↔5, 3↔4).",
+		"Voltea uno de tus dados a su cara geométrica opuesta (1<->6, 2<->5, 3<->4).",
 		5,
-		"🔄"
+		"[GIRO]"
 	))
 
 	# 3. Órdago / All-In
@@ -46,7 +46,7 @@ static func get_catalog() -> Array:
 		"Órdago (All-In)",
 		"Lanza un órdago: obliga al rival a responder únicamente con Dudo, impidiéndole subir la apuesta.",
 		6,
-		"⚡"
+		"[ORDAGO]"
 	))
 	
 	return list
